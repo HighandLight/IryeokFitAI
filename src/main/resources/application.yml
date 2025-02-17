@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: IryeokFitAi
+  datasource:
+    url: jdbc:mysql://localhost:3306/local
+    username: root
+    password: IryeokFit
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    generate-ddl: true

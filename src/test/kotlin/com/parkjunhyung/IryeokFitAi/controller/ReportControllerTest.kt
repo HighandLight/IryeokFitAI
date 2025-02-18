@@ -3,6 +3,7 @@ package com.parkjunhyung.IryeokFitAi.controller
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.ninjasquad.springmockk.MockkBean
 import com.parkjunhyung.IryeokFitAi.repository.entity.Report
+import com.parkjunhyung.IryeokFitAi.request.CreateReportRequest
 import com.parkjunhyung.IryeokFitAi.service.ReportService
 import io.mockk.every
 import io.mockk.junit5.MockKExtension

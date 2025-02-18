@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.ninjasquad.springmockk.MockkBean
 import com.parkjunhyung.IryeokFitAi.service.UserService
 import com.parkjunhyung.IryeokFitAi.repository.entity.User
+import com.parkjunhyung.IryeokFitAi.request.CreateUserRequest
 import io.mockk.every
 import io.mockk.junit5.MockKExtension
 import org.junit.jupiter.api.Test

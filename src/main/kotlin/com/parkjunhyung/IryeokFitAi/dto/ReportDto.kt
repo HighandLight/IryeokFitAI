@@ -1,4 +1,4 @@
-package com.parkjunhyung.IryeokFitAi.controller
+package com.parkjunhyung.IryeokFitAi.dto
 
 import com.parkjunhyung.IryeokFitAi.repository.entity.Report
 

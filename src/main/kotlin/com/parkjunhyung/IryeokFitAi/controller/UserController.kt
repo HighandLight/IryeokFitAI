@@ -1,5 +1,9 @@
 package com.parkjunhyung.IryeokFitAi.controller
 
+import com.parkjunhyung.IryeokFitAi.dto.UserDto
+import com.parkjunhyung.IryeokFitAi.dto.toUserDto
+import com.parkjunhyung.IryeokFitAi.request.CreateUserRequest
+import com.parkjunhyung.IryeokFitAi.request.toUser
 import com.parkjunhyung.IryeokFitAi.service.UserService
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody

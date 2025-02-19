@@ -21,5 +21,9 @@ class Resume (
 
     @Column(name = "status", nullable = false)
     @Enumerated(EnumType.STRING)
-    val status: ResumeStatus
-)
+    var status: ResumeStatus
+) {
+    fun markAsDeleted() {
+        this.status = ResumeStatus.DELETED
+    }
+}

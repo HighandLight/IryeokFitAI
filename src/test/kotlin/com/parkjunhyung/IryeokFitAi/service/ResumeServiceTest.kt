@@ -8,7 +8,9 @@ import com.parkjunhyung.IryeokFitAi.repository.entity.User
 import com.parkjunhyung.IryeokFitAi.request.CreateResumeRequest
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import org.junit.jupiter.api.Test
+import java.util.*
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
@@ -64,5 +66,37 @@ class ResumeServiceTest {
         }
 
         assertEquals("회원이 존재하지 않습니다! : 999", exception.message)
+    }
+
+    @Test
+    fun `deleteResume() should mark the resume as DELETED`() {
+        val user = User(id = 1L, name = "박준형", email = "pjh@gmail.com", password = "bestDeveloperEver!")
+
+        val resume = Resume(
+            id = 1L,
+            user = user,
+            originalFilePath = "/uploads/박준형이력서.pdf",
+            convertedImagePath = null,
+            status = ResumeStatus.UPLOADED
+        )
+
+        every { resumeRepository.findById(1L) } returns Optional.of(resume)
+        every { resumeRepository.save(any()) } answers { firstArg() }
+
+        resumeService.deleteResume(1L)
+
+        assertEquals(ResumeStatus.DELETED, resume.status)
+        verify { resumeRepository.save(resume) }
+    }
+
+    @Test
+    fun `deleteResume() should throw an exception if resume does not exist`() {
+        every { resumeRepository.findById(999L) } returns Optional.empty()
+
+        val exception = assertFailsWith<IllegalArgumentException> {
+            resumeService.deleteResume(999L)
+        }
+
+        assertEquals("이력서를 찾을 수 없습니다: 999", exception.message)
     }
 }

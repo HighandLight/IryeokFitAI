@@ -9,15 +9,17 @@ import com.parkjunhyung.IryeokFitAi.request.CreateResumeRequest
 import com.parkjunhyung.IryeokFitAi.service.ResumeService
 import io.mockk.every
 import io.mockk.junit5.MockKExtension
+import io.mockk.just
+import io.mockk.runs
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 
 @WebMvcTest(value = [ResumeController::class])
 @ExtendWith(MockKExtension::class)
@@ -65,4 +67,23 @@ class ResumeControllerTest {
             .andExpect(jsonPath("$.convertedImagePath").isEmpty)
             .andExpect(jsonPath("$.status").value(mockResume.status.toString()))
     }
+
+    @Test
+    fun `deleteResume() should return 204 No Content`() {
+        every { resumeService.deleteResume(1L) } just runs
+
+        mockMvc.perform(delete("/resumes/1"))
+            .andExpect(status().isNoContent())
+    }
+
+    @Test
+    fun `deleteResume() should return 404 if resume not found`() {
+        every { resumeService.deleteResume(any()) } throws IllegalArgumentException("이력서를 찾을 수 없습니다")
+
+        mockMvc.perform(delete("/resumes/999"))
+            .andExpect(status().isNotFound())
+            .andExpect(content().string("이력서를 찾을 수 없습니다"))
+    }
+
+
 }

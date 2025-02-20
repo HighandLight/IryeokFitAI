@@ -27,7 +27,7 @@ class Report(
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    val status: ReportStatus = ReportStatus.SAVED,
+    var status: ReportStatus = ReportStatus.SAVED,
 
     @Column(name = "created_at", nullable = false)
     val createdAt: LocalDateTime = LocalDateTime.now()

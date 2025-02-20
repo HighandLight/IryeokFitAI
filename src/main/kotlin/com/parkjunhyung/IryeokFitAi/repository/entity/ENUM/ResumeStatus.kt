@@ -1,4 +1,4 @@
-package com.parkjunhyung.IryeokFitAi.repository.entity
+package com.parkjunhyung.IryeokFitAi.repository.entity.ENUM
 
 enum class ResumeStatus {
     UPLOADED,

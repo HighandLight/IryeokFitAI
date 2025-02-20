@@ -3,7 +3,7 @@ package com.parkjunhyung.IryeokFitAi.service
 import com.parkjunhyung.IryeokFitAi.repository.ResumeRepository
 import com.parkjunhyung.IryeokFitAi.repository.UserRepository
 import com.parkjunhyung.IryeokFitAi.repository.entity.Resume
-import com.parkjunhyung.IryeokFitAi.repository.entity.ResumeStatus
+import com.parkjunhyung.IryeokFitAi.repository.entity.ENUM.ResumeStatus
 import com.parkjunhyung.IryeokFitAi.repository.entity.User
 import com.parkjunhyung.IryeokFitAi.request.CreateResumeRequest
 import io.mockk.every

@@ -2,7 +2,7 @@ package com.parkjunhyung.IryeokFitAi.request
 
 import com.parkjunhyung.IryeokFitAi.repository.entity.Resume
 import com.parkjunhyung.IryeokFitAi.repository.entity.User
-import com.parkjunhyung.IryeokFitAi.repository.entity.ResumeStatus
+import com.parkjunhyung.IryeokFitAi.repository.entity.ENUM.ResumeStatus
 
 data class CreateResumeRequest(
     val userId: Long,

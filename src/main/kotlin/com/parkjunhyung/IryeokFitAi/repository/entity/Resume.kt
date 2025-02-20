@@ -1,5 +1,6 @@
 package com.parkjunhyung.IryeokFitAi.repository.entity
 
+import com.parkjunhyung.IryeokFitAi.repository.entity.ENUM.ResumeStatus
 import jakarta.persistence.*
 
 @Table(name = "resume")

@@ -1,9 +1,21 @@
 package com.parkjunhyung.IryeokFitAi.request
 
 import com.parkjunhyung.IryeokFitAi.repository.entity.Report
+import com.parkjunhyung.IryeokFitAi.repository.entity.Resume
+import com.parkjunhyung.IryeokFitAi.repository.entity.User
 
 data class CreateReportRequest(
-    val name: String
+    val resumeId: Long,
+    val userId: Long,
+    val jobPostingUrl: String,
+    val title: String,
 )
 
-fun CreateReportRequest.toReport() = Report(name = name)
+fun CreateReportRequest.toReport(resume: Resume, user: User): Report {
+    return Report(
+        resume = resume,
+        user = user,
+        jobPostingUrl = jobPostingUrl,
+        title = title
+    )
+}

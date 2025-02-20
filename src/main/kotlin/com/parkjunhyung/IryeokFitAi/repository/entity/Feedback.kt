@@ -31,7 +31,7 @@ class Feedback (
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    val status: FeedbackStatus = FeedbackStatus.PENDING,
+    var status: FeedbackStatus = FeedbackStatus.PENDING,
 
     @Column(name = "created_at", nullable = false)
     val createdAt: LocalDateTime = LocalDateTime.now(),

@@ -3,7 +3,7 @@ package com.parkjunhyung.IryeokFitAi.controller
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.ninjasquad.springmockk.MockkBean
 import com.parkjunhyung.IryeokFitAi.repository.entity.Resume
-import com.parkjunhyung.IryeokFitAi.repository.entity.ResumeStatus
+import com.parkjunhyung.IryeokFitAi.repository.entity.ENUM.ResumeStatus
 import com.parkjunhyung.IryeokFitAi.repository.entity.User
 import com.parkjunhyung.IryeokFitAi.request.CreateResumeRequest
 import com.parkjunhyung.IryeokFitAi.service.ResumeService

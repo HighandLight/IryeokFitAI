@@ -11,4 +11,9 @@ class UserService (
     fun createUser(newUser: User): User {
         return userRepository.save(newUser)
     }
+    fun findByEmail(email: String)
+    = userRepository.findAll().find {
+        it.email == email
+    }
+
 }

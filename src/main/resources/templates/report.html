@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>이력서 첨삭 결과</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #eef2f7;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+        }
+        .sidebar {
+            width: 250px;
+            background: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .sidebar button, .sidebar input {
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .sidebar input {
+            border: 1px solid #ccc;
+        }
+        .history {
+            margin-top: 20px;
+            border-top: 1px solid #ddd;
+            padding-top: 10px;
+        }
+        .history-item {
+            padding: 8px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-bottom: 5px;
+        }
+        .container {
+            flex-grow: 1;
+            max-width: 900px;
+            margin-left: 20px;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        .resume-section {
+            display: flex;
+            gap: 20px;
+        }
+        .resume-box {
+            flex: 4;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            overflow: auto;
+            height: 500px;
+            font-size: 14px;
+            white-space: pre-wrap;
+        }
+        .resume-image {
+            width: 100%;
+            border-radius: 6px;
+        }
+        .feedback-section {
+            flex: 6;
+            background: #fff;
+            padding: 15px;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .feedback-item {
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .high {
+            background-color: #f8d7da;
+            border-left: 5px solid #dc3545;
+        }
+        .medium {
+            background-color: #fff3cd;
+            border-left: 5px solid #ffc107;
+        }
+        .low {
+            background-color: #d4edda;
+            border-left: 5px solid #28a745;
+        }
+    </style>
+    <script src="/js/authUtils.js"></script>
+
+</head>
+<body>
+<div class="sidebar">
+    <input type="file" accept="application/pdf">
+    <input type="text" placeholder="공고 URL 입력">
+    <button>분석하기</button>
+    <div class="history">
+        <h4>📂 이전 이력서</h4>
+        <div class="history-item">이력서_1.pdf</div>
+        <div class="history-item">이력서_2.pdf</div>
+        <div class="history-item">이력서_3.pdf</div>
+    </div>
+</div>
+
+<div class="container">
+    <h2>이력서 첨삭 결과</h2>
+    <div class="resume-section">
+        <div class="resume-box">
+            <h3>📂 기존 이력서</h3>
+            <img src="resumeEx.png" alt="기존 이력서" class="resume-image">
+        </div>
+        <div class="feedback-section">
+            <h3>✍ 피드백 리스트</h3>
+            <div class="feedback-item high">
+                🔴 **[High] Spring Boot 경험 부족**
+                <div class="feedback-detail">공고에서 Spring Boot 사용을 강조하지만, 이력서에 명확히 언급되지 않음.</div>
+            </div>
+            <div class="feedback-item medium">
+                🟡 **[Medium] 프로젝트 성과 추가 필요**
+                <div class="feedback-detail">프로젝트 설명에서 성과 수치를 추가하면 가독성이 향상됩니다.</div>
+            </div>
+            <div class="feedback-item low">
+                🟢 **[Low] 어휘 개선 (Worked → Developed)**
+                <div class="feedback-detail">'Worked on' 대신 'Developed' 같은 더 구체적인 동사를 사용하세요.</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

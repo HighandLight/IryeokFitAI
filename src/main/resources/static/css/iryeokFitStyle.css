@@ -1,0 +1,105 @@
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #eef2f7;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+.container {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    width: 400px;
+    text-align: center;
+}
+h2 {
+    color: #333;
+}
+input, button, .file-label {
+    width: calc(100% - 24px);
+    padding: 12px;
+    margin: 12px 0;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 16px;
+    display: block;
+    text-align: center;
+    box-sizing: border-box;
+}
+.file-label {
+    background-color: lightgrey;
+}
+input:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 8px rgba(0, 123, 255, 0.2);
+}
+button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.3s ease;
+}
+button:hover {
+    background-color: #0056b3;
+}
+.modal {
+    display: none;
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+}
+.modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    width: 350px;
+}
+.modal button {
+    margin-top: 10px;
+}
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #ccc;
+    border-top: 4px solid #007bff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 10px auto;
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+.error-icon {
+    font-size: 50px;
+    color: red;
+}
+
+button.secondary {
+    background-color: #28a745;
+}
+
+button.secondary:hover {
+    background-color: #218838;
+}
+
+button.tertiary {
+    background-color: #6c757d;
+}
+
+button.tertiary:hover {
+    background-color: #5a6268;
+}

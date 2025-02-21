@@ -10,7 +10,6 @@ async function login() {
         });
 
         const result = await response.json();
-        console.log(result);
         if (response.ok) {
             localStorage.setItem('token', result.token); // 일단은 local storage에 저장. TODO: Session
             localStorage.setItem('username', result.username);

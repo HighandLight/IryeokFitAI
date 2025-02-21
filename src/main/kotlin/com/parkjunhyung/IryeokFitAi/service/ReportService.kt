@@ -37,7 +37,9 @@ class ReportService(
 
     fun getReportByUser(userId: Long): List<Report> {
         return reportRepository.findByUserId(userId)
+            .filter { it.status != ReportStatus.DELETED }
     }
+
 
     @Transactional
     fun updateReportStatus(reportId: Long, status: ReportStatus) {

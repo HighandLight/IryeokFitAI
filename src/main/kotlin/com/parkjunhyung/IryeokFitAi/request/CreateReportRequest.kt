@@ -8,14 +8,14 @@ data class CreateReportRequest(
     val resumeId: Long,
     val userId: Long,
     val jobPostingUrl: String,
-    val title: String,
-)
-
-fun CreateReportRequest.toReport(resume: Resume, user: User): Report {
-    return Report(
-        resume = resume,
-        user = user,
-        jobPostingUrl = jobPostingUrl,
-        title = title
-    )
+    val title: String
+) {
+    fun toReport(resume: Resume, user: User): Report {
+        return Report(
+            resume = resume,
+            user = user,
+            jobPostingUrl = jobPostingUrl,
+            title = title
+        )
+    }
 }

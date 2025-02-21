@@ -1,8 +1,11 @@
 package com.parkjunhyung.IryeokFitAi.controller
 
+import com.parkjunhyung.IryeokFitAi.dto.ReportDto
 import com.parkjunhyung.IryeokFitAi.dto.ResumeDto
+import com.parkjunhyung.IryeokFitAi.dto.toReportDto
 import com.parkjunhyung.IryeokFitAi.dto.toResumeDto
 import com.parkjunhyung.IryeokFitAi.request.CreateResumeRequest
+import com.parkjunhyung.IryeokFitAi.service.ReportService
 import com.parkjunhyung.IryeokFitAi.service.ResumeService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -12,8 +15,30 @@ import org.springframework.web.multipart.MultipartFile
 @RestController
 @RequestMapping("/resumes")
 class ResumeController(
-    private val resumeService: ResumeService
+    private val resumeService: ResumeService,
+    private val reportService: ReportService
 ) {
+
+    @GetMapping("/{resumeId}")
+    fun getResumeById(@PathVariable resumeId: Long): ResponseEntity<ResumeDto> {
+        val resume = resumeService.getResumeById(resumeId)
+        return ResponseEntity.ok(resume.toResumeDto())
+    }
+
+    @GetMapping("/images/{reportId}")
+    fun getResumeImageByReportId(@PathVariable reportId: Long): ResponseEntity<Map<String, String?>> {
+        val report = reportService.getReportById(reportId)
+
+        val resumeId = report.resume.id
+        println(resumeId)
+        val resume = resumeService.getResumeById(resumeId)
+        println(resume)
+        val convertedUrl = resume.convertedImagePath
+        println(convertedUrl)
+        val response = mapOf("convertedImageUrl" to convertedUrl)
+        return ResponseEntity.ok(response)
+    }
+
     @PostMapping
     fun createResume(@RequestBody createResumeRequest: CreateResumeRequest): ResponseEntity<ResumeDto> {
         val resume = resumeService.createResume(createResumeRequest)

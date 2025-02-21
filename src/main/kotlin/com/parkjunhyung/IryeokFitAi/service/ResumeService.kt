@@ -15,6 +15,12 @@ class ResumeService (
     private val userRepository: UserRepository,
     private val s3Service: S3Service
 ){
+    fun getResumeById(resumeId: Long): Resume {
+        return resumeRepository.findById(resumeId)
+            .orElseThrow { throw IllegalArgumentException("resume 없음: resume_id : $resumeId")}
+
+    }
+
     fun createResume(request: CreateResumeRequest): Resume {
         val user = userRepository.findById(request.userId)
             .orElseThrow { throw IllegalArgumentException("회원이 존재하지 않습니다! : ${request.userId}") }
@@ -30,34 +36,21 @@ class ResumeService (
         resumeRepository.save(resume)
     }
 
-//    fun uploadResume(userId: Long, resumeId: Long, file: MultipartFile): Resume {
-//        val user = userRepository.findById(userId)
-//            .orElseThrow{ throw IllegalArgumentException("회원이 존재하지 않습니다. : $userId")}
-//        val fileUrl = s3Service.uploadFile(userId,resumeId, file)
-//
-//        val resume = Resume(
-//            user = user,
-//            originalFilePath = fileUrl,
-//            status = ResumeStatus.UPLOADED,
-//        )
-//
-//        return resumeRepository.save(resume)
-//    }
 fun uploadResume(userId: Long, file: MultipartFile): Resume {
-    val user = userRepository.findById(userId)
-        .orElseThrow { throw IllegalArgumentException("회원이 존재하지 않습니다: $userId") }
+        val user = userRepository.findById(userId)
+            .orElseThrow { throw IllegalArgumentException("회원이 존재하지 않습니다: $userId") }
 
-    val resumeId = System.currentTimeMillis()
-    val pdfUrl = s3Service.uploadPdf(userId, resumeId, file)
-    val imageUrls = s3Service.pdfToJpg(userId, resumeId, file)
+        val resumeId = System.currentTimeMillis()
+        val pdfUrl = s3Service.uploadPdf(userId, resumeId, file)
+        val imageUrls = s3Service.pdfToJpg(userId, resumeId, file)
 
-    val resume = Resume(
-        user = user,
-        originalFilePath = pdfUrl,
-        convertedImagePath = imageUrls.firstOrNull(),
-        status = ResumeStatus.UPLOADED
-    )
+        val resume = Resume(
+            user = user,
+            originalFilePath = pdfUrl,
+            convertedImagePath = imageUrls.firstOrNull(),
+            status = ResumeStatus.UPLOADED
+        )
 
-    return resumeRepository.save(resume)
-}
+        return resumeRepository.save(resume)
+    }
 }

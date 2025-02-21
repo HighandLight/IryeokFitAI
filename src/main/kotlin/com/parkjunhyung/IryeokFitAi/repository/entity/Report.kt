@@ -1,7 +1,9 @@
 package com.parkjunhyung.IryeokFitAi.repository.entity
 
+import com.fasterxml.jackson.annotation.JsonFormat
 import com.parkjunhyung.IryeokFitAi.repository.entity.ENUM.ReportStatus
 import jakarta.persistence.*
+import org.hibernate.annotations.CreationTimestamp
 import java.time.LocalDateTime
 
 @Table(name = "report")
@@ -29,8 +31,14 @@ class Report(
     @Column(name = "status", nullable = false)
     var status: ReportStatus = ReportStatus.SAVED,
 
+    @field:CreationTimestamp
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "created_at", nullable = false)
-    val createdAt: LocalDateTime = LocalDateTime.now()
+    var createdAt: LocalDateTime = LocalDateTime.now()
+){
+    @PrePersist
+    fun onCreate() {
+        this.createdAt = LocalDateTime.now()
+    }
+}
 
-
-)

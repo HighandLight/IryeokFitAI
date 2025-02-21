@@ -1,5 +1,6 @@
 package com.parkjunhyung.IryeokFitAi.dto
 
+import com.fasterxml.jackson.annotation.JsonFormat
 import com.parkjunhyung.IryeokFitAi.repository.entity.ENUM.ReportStatus
 import com.parkjunhyung.IryeokFitAi.repository.entity.Report
 import java.time.LocalDateTime
@@ -11,6 +12,7 @@ data class ReportDto(
     val title: String,
     val jobPostingUrl: String,
     val status: ReportStatus,
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     val createdAt: LocalDateTime,
 )
 

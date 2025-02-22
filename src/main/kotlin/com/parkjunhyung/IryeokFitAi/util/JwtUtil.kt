@@ -1,4 +1,4 @@
-package com.parkjunhyung.IryeokFitAi.security
+package com.parkjunhyung.IryeokFitAi.util
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
 import io.jsonwebtoken.security.Keys

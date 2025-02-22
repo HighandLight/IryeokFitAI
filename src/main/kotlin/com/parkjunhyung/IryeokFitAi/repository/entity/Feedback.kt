@@ -15,9 +15,8 @@ class Feedback (
     @JoinColumn(name = "report_id", nullable = false)
     val report: Report,
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id", nullable = false)
-    val category: FeedbackCategory,
+    @Column(name = "category", nullable = false, length = 100)
+    var category: String,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "priority_id", nullable = false)
@@ -35,6 +34,4 @@ class Feedback (
 
     @Column(name = "created_at", nullable = false)
     val createdAt: LocalDateTime = LocalDateTime.now(),
-
-
     )

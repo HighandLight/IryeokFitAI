@@ -6,23 +6,13 @@ import com.parkjunhyung.IryeokFitAi.repository.entity.ENUM.FeedbackStatus
 import com.parkjunhyung.IryeokFitAi.repository.entity.Feedback
 import com.parkjunhyung.IryeokFitAi.service.FeedbackService
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PatchMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/feedbacks")
 class FeedbackController (
     private val feedbackService: FeedbackService
 ) {
-    @GetMapping("/now")
-    fun getNow(): String? {
-        return feedbackService.whatTimeIsIt()
-    }
-
     @GetMapping("/{reportId}")
     fun getFeedbacksByReportId(@PathVariable reportId: Long): ResponseEntity<List<FeedbackDto>> {
         val feedbacks = feedbackService.getFeedbackByReport(reportId)
@@ -39,5 +29,12 @@ class FeedbackController (
     fun updateFeedbackStatus(@PathVariable feedbackId: Long, @RequestParam status: FeedbackStatus): ResponseEntity<Void> {
         feedbackService.updateFeedbackStatus(feedbackId, status)
         return ResponseEntity.noContent().build()
+    }
+
+    @PostMapping("/generate/{reportId}")
+    fun generateFeedbackForReport(@PathVariable reportId: Long): ResponseEntity<List<FeedbackDto>> {
+        val newFeedbacks = feedbackService.generateFeedback(reportId)
+        val dtoList = newFeedbacks.map { it.toFeedbackDto() }
+        return ResponseEntity.ok(dtoList)
     }
 }

@@ -19,7 +19,7 @@ fun Feedback.toFeedbackDto(): FeedbackDto {
     return FeedbackDto(
         id = this.id,
         reportId = this.report.id,
-        category = this.category.name,
+        category = this.category,
         priority = this.priority.level,
         detailText = this.detailText,
         suggestionText = this.suggestionText,

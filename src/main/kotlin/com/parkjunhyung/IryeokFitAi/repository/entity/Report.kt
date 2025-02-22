@@ -27,6 +27,17 @@ class Report(
     @Column(name = "job_posting_url", nullable = false, length = 500)
     val jobPostingUrl: String,
 
+    @Column(name = "responsibilities", columnDefinition = "TEXT") //TODO: 길이 보고 바꿔야할수도?
+    val responsibilities: String? = null,
+
+    @Column(name = "requirements", columnDefinition = "TEXT")
+    val requirements: String? = null,
+
+    @Column(name = "preferred", columnDefinition = "TEXT")
+    val preferred: String? = null,
+
+    @Column(name = "skills", columnDefinition = "TEXT")
+    val skills: String? = null,
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     var status: ReportStatus = ReportStatus.SAVED,

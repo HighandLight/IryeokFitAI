@@ -93,6 +93,8 @@ document.getElementById("analyzeButton").addEventListener("click", async () => {
         }
 
         if (result) {
+            window.jobPostingData = result;
+
             document.getElementById("jobTitle").innerHTML = result.title ? `<strong>${result.title}</strong>` : "<strong>제목 없음</strong>";
 
             closeLoadingModal();
@@ -124,18 +126,23 @@ async function proceedToFeedback() {
             method: "POST",
             body: formData,
         });
-
         uploadedResume = await uploadResponse.json();
     } catch (error) {
         console.error("이력서 업로드 실패:", error);
         return;
     }
-    const jobTitle = document.getElementById("jobTitle").innerText || "새로운 공고";
+
+    const jobPostingData = window.jobPostingData || {};
+
     const reportData = {
         userId: userId,
         resumeId: uploadedResume.id,
-        title: jobTitle,
+        title: jobPostingData.title || "새로운 공고",
         jobPostingUrl: jobUrl,
+        responsibilities: jobPostingData.responsibilities,
+        requirements: jobPostingData.requirements,
+        preferred: jobPostingData.preferred,
+        skills: jobPostingData.skills
     };
 
     try {
@@ -151,4 +158,3 @@ async function proceedToFeedback() {
         console.error("리포트 생성 실패:", error);
     }
 }
-

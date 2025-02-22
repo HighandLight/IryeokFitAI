@@ -1,6 +1,6 @@
 package com.parkjunhyung.IryeokFitAi.controller
 
-import com.parkjunhyung.IryeokFitAi.security.JwtUtil
+import com.parkjunhyung.IryeokFitAi.util.JwtUtil
 import com.parkjunhyung.IryeokFitAi.service.UserService
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*

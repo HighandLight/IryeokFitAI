@@ -20,6 +20,9 @@ class Resume (
     @Column(name = "converted_image_path")
     val convertedImagePath: String? = null,
 
+    @Column(name = "resume_text", columnDefinition = "TEXT")
+    var resumeText: String? = null,
+
     @Column(name = "status", nullable = false)
     @Enumerated(EnumType.STRING)
     var status: ResumeStatus

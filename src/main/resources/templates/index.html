@@ -32,12 +32,29 @@
     </div>
 </div>
 
+<div class="modal" id="fileErrorModal">
+    <div class="modal-content">
+        <h3>이력서를 업로드해주세요!</h3>
+        <div class="error-icon">❗</div>
+        <button onclick="closeFileErrorModal()">닫기</button>
+    </div>
+</div>
+
+<div class="modal" id="urlErrorModal">
+    <div class="modal-content">
+        <h3>공고 URL을 입력해주세요!</h3>
+        <div class="error-icon">❗</div>
+        <button onclick="closeUrlErrorModal()">닫기</button>
+    </div>
+</div>
+
 <div class="modal" id="jobModal">
     <div class="modal-content">
-        <h3>지원하려는 회사 정보가 맞나요?</h3>
+        <h3>지원하려는 공고 정보가 맞나요?</h3>
         <p id="jobTitle"><strong></strong></p>
         <p id="jobResponsibilities"></p>
-
+        <p id="jobSkills"></p>
+        <p id="jobRequirements"></p>
         <button onclick="proceedToFeedback()">✅ 네, 진행할게요</button>
         <button onclick="closeModal()">❌ 취소</button>
     </div>

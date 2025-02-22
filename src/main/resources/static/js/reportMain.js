@@ -4,10 +4,11 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch (error) {
         console.error("리포트 목록을 불러오는 도중 에러가 발생했습니다.", error);
     }
-    const reportId = getReportIdFromURL();
 
+    const reportId = getReportIdFromURL();
     if (reportId) {
         fetchResumeImage(reportId);
+        fetchFeedbacks(reportId);
     } else {
         console.error("Report ID가 URL에 없습니다.");
     }
@@ -115,4 +116,71 @@ function displayResumeImage(imageUrl) {
     const resumeImage = document.getElementById("resumeImage");
     resumeImage.src = imageUrl;
     resumeImage.alt = "변환된 이력서 이미지";
+}
+
+async function fetchFeedbacks(reportId) {
+    try {
+        const response = await fetch(`/feedbacks/${reportId}`, {
+            headers: {
+                "Authorization": `Bearer ${localStorage.getItem("token")}`
+            }
+        });
+        if (!response.ok) throw new Error("피드백 리스트 로드 실패");
+        const feedbacks = await response.json();
+        renderFeedbackList(feedbacks);
+    } catch (error) {
+        console.error("피드백 로딩 에러:", error);
+    }
+}
+function renderFeedbackList(feedbacks) {
+    const feedbackListContainer = document.getElementById("feedbackSection");
+    feedbackListContainer.innerHTML = "";
+
+    feedbacks.forEach((feedback) => {
+        const feedbackItem = document.createElement("div");
+        feedbackItem.classList.add("feedback-item", getPriorityClass(feedback.priority));
+
+        feedbackItem.innerHTML = `
+            <strong>${getPriorityEmoji(feedback.priority)} [${feedback.priority}] ${feedback.suggestionText}</strong>
+            <button class="toggle-detail">자세히 보기 ▾</button>
+            <div class="feedback-detail hidden">${feedback.detailText}</div>
+        `;
+
+        const toggleButton = feedbackItem.querySelector(".toggle-detail");
+        const detailText = feedbackItem.querySelector(".feedback-detail");
+
+        toggleButton.addEventListener("click", () => {
+            const isHidden = detailText.classList.toggle("hidden");
+            toggleButton.textContent = isHidden ? "자세히 보기 ▾" : "간략히 보기 ▴";
+        });
+
+        feedbackListContainer.appendChild(feedbackItem);
+    });
+}
+
+
+function getPriorityClass(priority) {
+    switch (priority.toLowerCase()) {
+        case "high":
+            return "high";
+        case "medium":
+            return "medium";
+        case "low":
+            return "low";
+        default:
+            return "";
+    }
+}
+
+function getPriorityEmoji(priority) {
+    switch (priority.toLowerCase()) {
+        case "high":
+            return "🔴";
+        case "medium":
+            return "🟡";
+        case "low":
+            return "🟢";
+        default:
+            return "⚪";
+    }
 }

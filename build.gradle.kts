@@ -28,6 +28,7 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.springframework.ai:spring-ai-openai-spring-boot-starter:1.0.0-SNAPSHOT")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+	implementation("org.apache.pdfbox:pdfbox:2.0.29")
 	implementation("io.awspring.cloud:spring-cloud-aws-starter-s3:3.3.0")
 	implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
 	implementation("org.springframework.boot:spring-boot-starter-thymeleaf")

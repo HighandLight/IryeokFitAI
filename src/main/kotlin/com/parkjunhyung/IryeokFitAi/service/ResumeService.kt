@@ -6,6 +6,7 @@ import com.parkjunhyung.IryeokFitAi.repository.entity.Resume
 import com.parkjunhyung.IryeokFitAi.repository.entity.ENUM.ResumeStatus
 import com.parkjunhyung.IryeokFitAi.request.CreateResumeRequest
 import com.parkjunhyung.IryeokFitAi.request.toResume
+import com.parkjunhyung.IryeokFitAi.util.PdfUtils.extractTextFromPdf
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 
@@ -43,11 +44,13 @@ fun uploadResume(userId: Long, file: MultipartFile): Resume {
         val resumeId = System.currentTimeMillis()
         val pdfUrl = s3Service.uploadPdf(userId, resumeId, file)
         val imageUrls = s3Service.pdfToJpg(userId, resumeId, file)
+        val extractedText = extractTextFromPdf(file.inputStream)
 
         val resume = Resume(
             user = user,
             originalFilePath = pdfUrl,
             convertedImagePath = imageUrls.firstOrNull(),
+            resumeText = extractedText,
             status = ResumeStatus.UPLOADED
         )
 

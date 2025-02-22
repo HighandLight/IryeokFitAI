@@ -1,5 +1,7 @@
 package com.parkjunhyung.IryeokFitAi.controller
 
+import com.parkjunhyung.IryeokFitAi.dto.FeedbackDto
+import com.parkjunhyung.IryeokFitAi.dto.toFeedbackDto
 import com.parkjunhyung.IryeokFitAi.repository.entity.ENUM.FeedbackStatus
 import com.parkjunhyung.IryeokFitAi.repository.entity.Feedback
 import com.parkjunhyung.IryeokFitAi.service.FeedbackService
@@ -16,6 +18,18 @@ import org.springframework.web.bind.annotation.RestController
 class FeedbackController (
     private val feedbackService: FeedbackService
 ) {
+    @GetMapping("/now")
+    fun getNow(): String? {
+        return feedbackService.whatTimeIsIt()
+    }
+
+    @GetMapping("/{reportId}")
+    fun getFeedbacksByReportId(@PathVariable reportId: Long): ResponseEntity<List<FeedbackDto>> {
+        val feedbacks = feedbackService.getFeedbackByReport(reportId)
+            .map { it.toFeedbackDto() }
+        return ResponseEntity.ok(feedbacks)
+    }
+
     @GetMapping("/report/{reportId}")
     fun getFeedbackByReport(@PathVariable reportId: Long): ResponseEntity<List<Feedback>> {
         return ResponseEntity.ok(feedbackService.getFeedbackByReport(reportId))

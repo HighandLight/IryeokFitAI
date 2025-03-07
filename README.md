@@ -2,7 +2,7 @@
 
 ### URL🔗
 
-iryeokfit.parkjunhyung.com
+https://iryeokfit.parkjunhyung.com
 
 
 <이미지>

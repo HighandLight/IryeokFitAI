@@ -17,6 +17,7 @@ class UserController (
 ){
     @PostMapping
     fun createUser(@RequestBody createUserRequest: CreateUserRequest): UserDto {
-        return userService.createUser(createUserRequest.toUser()).toUserDto()
+        val user = userService.createUser(createUserRequest)
+        return user.toUserDto()
     }
 }

@@ -46,7 +46,7 @@ class ResumeControllerTest {
 
         val mockResume = Resume(
             id = 1L,
-            user = User(id = 1L, name = "박준형", email = "parkjunhyung@gmail.com", password = "bestSoftwareEngineer!"),
+            user = User(id = 1L, name = "박준형", email = "parkjunhyung@gmail.com", phoneNumber = "01012345678",password = "bestSoftwareEngineer!"),
             originalFilePath = "/uploads/박준형이력서.pdf",
             convertedImagePath = null,
             status = ResumeStatus.UPLOADED

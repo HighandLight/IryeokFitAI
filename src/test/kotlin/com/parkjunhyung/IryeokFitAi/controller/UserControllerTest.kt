@@ -3,7 +3,9 @@ package com.parkjunhyung.IryeokFitAi.controller
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.ninjasquad.springmockk.MockkBean
 import com.parkjunhyung.IryeokFitAi.service.UserService
+import com.parkjunhyung.IryeokFitAi.repository.entity.ENUM.UserStatus
 import com.parkjunhyung.IryeokFitAi.repository.entity.User
+import com.parkjunhyung.IryeokFitAi.dto.toUserDto
 import com.parkjunhyung.IryeokFitAi.request.CreateUserRequest
 import io.mockk.every
 import io.mockk.junit5.MockKExtension
@@ -29,14 +31,23 @@ class UserControllerTest {
     @Test
     fun `createUser() should create and return the user`() {
         val objectMapper = ObjectMapper()
-        val createUserRequest = CreateUserRequest("Kyle", "kyle@gmail.com", "whenInDoubtChooseChange!")
+        val createUserRequest = CreateUserRequest(
+            name = "Kyle",
+            email = "kyle@gmail.com",
+            password = "whenInDoubtChooseChange!",
+            phoneNumber = "01012345678"
+        )
         val jsonString = objectMapper.writeValueAsString(createUserRequest)
 
-        every { userService.createUser(any()) } returns User(
-            name = "kyle",
+        val mockUser = User(
+            name = "Kyle",
             email = "kyle@gmail.com",
-            password = "whenInDoubtChooseChange!"
+            password = "whenInDoubtChooseChange!",
+            phoneNumber = "01012345678",
+            status = UserStatus.UNVERIFIED
         )
+
+        every { userService.createUser(any()) } returns mockUser 
 
         mockMvc
             .perform(
@@ -45,8 +56,9 @@ class UserControllerTest {
                     .content(jsonString)
             )
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.name").value("kyle"))
+            .andExpect(jsonPath("$.name").value("Kyle"))
             .andExpect(jsonPath("$.email").value("kyle@gmail.com"))
-            .andExpect(jsonPath("$.password").value("whenInDoubtChooseChange!"))
+            .andExpect(jsonPath("$.phoneNumber").value("01012345678"))
+            .andExpect(jsonPath("$.status").value("UNVERIFIED")) // 상태 확인
     }
 }

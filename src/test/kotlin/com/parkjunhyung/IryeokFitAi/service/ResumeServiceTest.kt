@@ -17,12 +17,13 @@ import kotlin.test.assertFailsWith
 class ResumeServiceTest {
     private val resumeRepository: ResumeRepository = mockk()
     private val userRepository: UserRepository = mockk()
+    private val s3Service: S3Service = mockk()
 
-    private val resumeService = ResumeService(resumeRepository, userRepository)
+    private val resumeService = ResumeService(resumeRepository, userRepository, s3Service)
 
     @Test
     fun `createResume() should create a new resume and return it`() {
-        val user = User(id = 1L, name = "박준형", email = "pjh@gmail.com", password = "bestDeveloperEver!")
+        val user = User(id = 1L, name = "박준형", email = "pjh@gmail.com", phoneNumber = "01012345678", password = "bestDeveloperEver!")
 
         val request = CreateResumeRequest(
             userId = 1L,
@@ -70,7 +71,7 @@ class ResumeServiceTest {
 
     @Test
     fun `deleteResume() should mark the resume as DELETED`() {
-        val user = User(id = 1L, name = "박준형", email = "pjh@gmail.com", password = "bestDeveloperEver!")
+        val user = User(id = 1L, name = "박준형", email = "pjh@gmail.com", phoneNumber = "01012345678", password = "bestDeveloperEver!")
 
         val resume = Resume(
             id = 1L,

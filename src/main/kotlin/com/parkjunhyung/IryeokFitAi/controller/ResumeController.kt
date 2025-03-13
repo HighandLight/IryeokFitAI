@@ -30,11 +30,8 @@ class ResumeController(
         val report = reportService.getReportById(reportId)
 
         val resumeId = report.resume.id
-        println(resumeId)
         val resume = resumeService.getResumeById(resumeId)
-        println(resume)
         val convertedUrl = resume.convertedImagePath
-        println(convertedUrl)
         val response = mapOf("convertedImageUrl" to convertedUrl)
         return ResponseEntity.ok(response)
     }

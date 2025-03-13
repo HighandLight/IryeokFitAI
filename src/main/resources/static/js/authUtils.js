@@ -10,7 +10,7 @@ function checkTokenExpiration() {
         alert('세션이 만료되었습니다. 다시 로그인해주세요.');
         localStorage.removeItem('token');
         localStorage.removeItem('username');
-        window.location.href = 'signIn.html';
+        window.location.href = 'signin.html';
     }
 }
 

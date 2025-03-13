@@ -1,4 +1,4 @@
-async function login() {
+async function signin() {
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
 
@@ -27,9 +27,9 @@ async function login() {
             console.log(reports);
 
             if (reports.length > 0) {
-                window.location.href = 'report.html';
+                window.location.href = 'report';
             } else {
-                window.location.href = 'index.html';
+                window.location.href = 'index';
             }
         } else {
             alert(result.error);

@@ -12,7 +12,7 @@ class User (
     val name: String,
     val email: String,
     val phoneNumber: String,
-    val password: String,
+    var password: String,
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     var status: UserStatus = UserStatus.UNVERIFIED

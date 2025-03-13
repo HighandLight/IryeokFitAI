@@ -37,6 +37,7 @@ class ReportController(
         reportService.updateReportStatus(reportId, status)
         return ResponseEntity.noContent().build()
     }
+
     @DeleteMapping("/{reportId}")
     fun deleteReport(@PathVariable reportId: Long): ResponseEntity<Void> {
         reportService.deleteReport(reportId)

@@ -124,6 +124,9 @@ async function proceedToFeedback() {
     try {
         const uploadResponse = await fetch("/resumes/upload", {
             method: "POST",
+            headers: {
+                "Authorization": `Bearer ${localStorage.getItem("token")}`
+            },
             body: formData,
         });
         uploadedResume = await uploadResponse.json();
@@ -145,16 +148,33 @@ async function proceedToFeedback() {
         skills: jobPostingData.skills
     };
 
+    let report;
     try {
-        const reportResponse = await fetch("/reports", {
+        const reportResponse = await fetchWithAuth("/reports", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(reportData),
         });
 
-        const report = await reportResponse.json();
-        window.location.href = `report?reportId=${report.id}`;
+        report = await reportResponse.json();
     } catch (error) {
         console.error("리포트 생성 실패:", error);
+        return;
     }
+
+    try {
+        const feedbackResponse = await fetchWithAuth(`/feedbacks/generate/${report.id}`, {
+            method: "POST",
+        });
+
+        if (!feedbackResponse.ok) {
+            console.error("피드백 생성 실패");
+            return;
+        }
+    } catch (error) {
+        console.error("피드백 생성 요청 오류:", error);
+        return;
+    }
+
+    window.location.href = `report?reportId=${report.id}`;
 }
+

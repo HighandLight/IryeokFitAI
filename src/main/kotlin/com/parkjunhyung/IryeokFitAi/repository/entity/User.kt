@@ -1,5 +1,6 @@
 package com.parkjunhyung.IryeokFitAi.repository.entity
 
+import com.parkjunhyung.IryeokFitAi.repository.entity.ENUM.UserRole
 import com.parkjunhyung.IryeokFitAi.repository.entity.ENUM.UserStatus
 import jakarta.persistence.*
 
@@ -15,5 +16,8 @@ class User (
     val password: String,
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    var status: UserStatus = UserStatus.UNVERIFIED
+    var status: UserStatus = UserStatus.UNVERIFIED,
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    var role: UserRole = UserRole.USER,
 )

@@ -21,36 +21,24 @@ function getReportIdFromURL() {
 
 function getUserIdFromToken() {
     const token = localStorage.getItem("token");
-    if (!token) {
-        alert("로그인이 필요합니다.");
-        window.location.href = "/signIn";
+
+    if (!token || isTokenExpired(token)) {
+        alert("세션이 만료되었습니다. 다시 로그인해주세요.");
+        localStorage.removeItem("token");
+        localStorage.removeItem("userId");
+        window.location.href = "/signin";
         return null;
     }
-    const userId = localStorage.getItem("userId")
 
-    return userId;
+    return localStorage.getItem("userId");
 }
-
-
 
 async function fetchReports() {
     const userId = getUserIdFromToken();
     if (!userId) return;
 
     try {
-        const response = await fetch(`/reports/user/${userId}`, {
-            headers: {
-                "Authorization": `Bearer ${localStorage.getItem("token")}`
-            }
-        });
-
-        if (response.status === 401) {
-            alert("세션이 만료되었습니다. 다시 로그인해주세요.");
-            localStorage.removeItem("token");
-            window.location.href = "/signIn";
-            return;
-        }
-
+        const response = await fetchWithAuth(`/reports/user/${userId}`);
         if (!response.ok) throw new Error("리스트 로드 실패");
 
         const reports = await response.json();
@@ -59,7 +47,6 @@ async function fetchReports() {
         console.error("리포트 목록 로드 에러:", error);
     }
 }
-
 
 function renderReportList(reports) {
     const reportListContainer = document.getElementById("reportList");
@@ -82,15 +69,11 @@ function renderReportList(reports) {
 
         reportListContainer.appendChild(reportItem);
     });
-
 }
+
 async function fetchResumeImage(reportId) {
     try {
-        const response = await fetch(`/resumes/images/${reportId}`, {
-            headers: {
-                "Authorization": `Bearer ${localStorage.getItem("token")}`
-            }
-        });
+        const response = await fetchWithAuth(`/resumes/images/${reportId}`);
 
         if (response.status === 404) {
             console.error("해당 이력서를 찾을 수 없습니다.");
@@ -120,18 +103,16 @@ function displayResumeImage(imageUrl) {
 
 async function fetchFeedbacks(reportId) {
     try {
-        const response = await fetch(`/feedbacks/${reportId}`, {
-            headers: {
-                "Authorization": `Bearer ${localStorage.getItem("token")}`
-            }
-        });
+        const response = await fetchWithAuth(`/feedbacks/${reportId}`);
         if (!response.ok) throw new Error("피드백 리스트 로드 실패");
+
         const feedbacks = await response.json();
         renderFeedbackList(feedbacks);
     } catch (error) {
         console.error("피드백 로딩 에러:", error);
     }
 }
+
 function renderFeedbackList(feedbacks) {
     const feedbackListContainer = document.getElementById("feedbackSection");
     feedbackListContainer.innerHTML = "";
@@ -157,7 +138,6 @@ function renderFeedbackList(feedbacks) {
         feedbackListContainer.appendChild(feedbackItem);
     });
 }
-
 
 function getPriorityClass(priority) {
     switch (priority.toLowerCase()) {

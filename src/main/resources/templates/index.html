@@ -9,6 +9,16 @@
     <title>이력핏 : AI 이력서 첨삭</title>
 </head>
 <body>
+<script>
+    document.addEventListener("DOMContentLoaded", async () => {
+        const response = await fetchWithAuth("/reports/user/" + localStorage.getItem("userId"));
+        if (response.ok) {
+            const reports = await response.json();
+            console.log(reports);
+        }
+    });
+</script>
+
 <div class="container">
     <h2>이력핏-IryeokFit ✅ </h2>
     <strong>이력핏이 처음이시군요?</strong>

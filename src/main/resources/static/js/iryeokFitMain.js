@@ -153,7 +153,7 @@ async function proceedToFeedback() {
         });
 
         const report = await reportResponse.json();
-        window.location.href = `report.html?reportId=${report.id}`;
+        window.location.href = `report?reportId=${report.id}`;
     } catch (error) {
         console.error("리포트 생성 실패:", error);
     }

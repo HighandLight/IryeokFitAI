@@ -77,7 +77,7 @@ function renderReportList(reports) {
 
             reportItem.classList.add("selected");
 
-            window.location.href = `/report.html?reportId=${report.id}`;
+            window.location.href = `/report?reportId=${report.id}`;
         });
 
         reportListContainer.appendChild(reportItem);

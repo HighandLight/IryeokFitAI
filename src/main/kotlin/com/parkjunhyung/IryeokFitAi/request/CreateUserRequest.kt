@@ -15,5 +15,6 @@ fun CreateUserRequest.toUser() = User(
     email = email,
     password = password,
     phoneNumber = phoneNumber,
-    status = UserStatus.UNVERIFIED
+    status = UserStatus.ACTIVATE, // TODO : 인증 구현 후 UNVERIFIED가 기본 default
+
 )

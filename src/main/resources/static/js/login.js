@@ -5,13 +5,13 @@ async function login() {
     try {
         const response = await fetch('/auth/login', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `email=${email}&password=${password}`
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
         });
 
         const result = await response.json();
         if (response.ok) {
-            localStorage.setItem('token', result.token); // 일단은 local storage에 저장. TODO: Session
+            localStorage.setItem('token', result.token); // 일단은 local storage에 저장.
             localStorage.setItem('username', result.username);
             localStorage.setItem('userId', result.userId);
 
@@ -27,15 +27,15 @@ async function login() {
             console.log(reports);
 
             if (reports.length > 0) {
-                window.location.href = 'report.html';
+                window.location.href = 'report';
             } else {
-                window.location.href = 'index.html';
+                window.location.href = 'index';
             }
         } else {
             alert(result.error);
         }
     } catch (error) {
         console.error('Login error:', error);
-        alert('An error occurred during login.');
+        alert('에러 발생..');
     }
 }

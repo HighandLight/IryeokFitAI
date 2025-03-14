@@ -70,6 +70,22 @@ button:hover {
 .modal button {
     margin-top: 10px;
 }
+
+.loading-bar {
+    display: inline-block;
+    width: 50px;
+    height: 4px;
+    background: linear-gradient(90deg, #02C75A, #fff);
+    background-size: 200% 100%;
+    animation: loading-animation 1s linear infinite;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
+@keyframes loading-animation {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
 .loading-spinner {
     width: 40px;
     height: 40px;
@@ -89,11 +105,11 @@ button:hover {
 }
 
 button.secondary {
-    background-color: #28a745;
+    background-color: #02C75A;
 }
 
 button.secondary:hover {
-    background-color: #218838;
+    background-color: #02C75A;
 }
 
 button.tertiary {
@@ -112,3 +128,4 @@ button.tertiary:hover {
     max-width: 150px;
     height: auto;
 }
+

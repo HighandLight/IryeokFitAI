@@ -2,8 +2,15 @@ package com.parkjunhyung.IryeokFitAi.controller
 
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.GetMapping
+import jakarta.servlet.http.HttpServletResponse
+
 @Controller
 class PageController {
+
+    @GetMapping("/")
+    fun redirectToIndex(response: HttpServletResponse) {
+        response.sendRedirect("/index")
+    }
 
     @GetMapping("/signin")
     fun showSignInPage(): String {

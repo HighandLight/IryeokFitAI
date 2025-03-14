@@ -89,11 +89,11 @@ button:hover {
 }
 
 button.secondary {
-    background-color: #28a745;
+    background-color: #02C75A;
 }
 
 button.secondary:hover {
-    background-color: #218838;
+    background-color: #02C75A;
 }
 
 button.tertiary {

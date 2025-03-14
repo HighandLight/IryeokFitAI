@@ -111,6 +111,19 @@ document.getElementById("analyzeButton").addEventListener("click", async () => {
 });
 
 async function proceedToFeedback() {
+    const proceedButton = document.getElementById("proceedButton");
+
+    proceedButton.disabled = true;
+    proceedButton.innerHTML = `
+        <div class="loading-bar"></div> 이력서 검토중...
+    `;
+
+    setTimeout(() => {
+        proceedButton.innerHTML = `
+            <div class="loading-bar"></div> 피드백 생성중...
+        `;
+    }, 3000);
+
     const jobUrl = document.getElementById("jobUrl").value.trim();
     const resumeInput = document.getElementById("resumeUpload");
     const resumeFile = resumeInput.files[0];
@@ -132,6 +145,8 @@ async function proceedToFeedback() {
         uploadedResume = await uploadResponse.json();
     } catch (error) {
         console.error("이력서 업로드 실패:", error);
+        proceedButton.innerHTML = "✅ 네, 진행할게요";
+        proceedButton.disabled = false;
         return;
     }
 
@@ -158,6 +173,8 @@ async function proceedToFeedback() {
         report = await reportResponse.json();
     } catch (error) {
         console.error("리포트 생성 실패:", error);
+        proceedButton.innerHTML = "✅ 네, 진행할게요";
+        proceedButton.disabled = false;
         return;
     }
 
@@ -168,13 +185,16 @@ async function proceedToFeedback() {
 
         if (!feedbackResponse.ok) {
             console.error("피드백 생성 실패");
+            proceedButton.innerHTML = "✅ 네, 진행할게요";
+            proceedButton.disabled = false;
             return;
         }
     } catch (error) {
         console.error("피드백 생성 요청 오류:", error);
+        proceedButton.innerHTML = "✅ 네, 진행할게요";
+        proceedButton.disabled = false;
         return;
     }
 
     window.location.href = `report?reportId=${report.id}`;
 }
-

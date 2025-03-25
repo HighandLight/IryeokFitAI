@@ -53,7 +53,7 @@ class S3Service (
             ImageIO.write(image, "jpg", outputStream)
             val imageInputStream = ByteArrayInputStream(outputStream.toByteArray())
 
-            val key = "users/$encodedUserId/resumes/$resumeId/images/page_${pageIndex + 1}.jpg"
+            val key = "$directory/$encodedUserId/resumes/$resumeId/images/page_${pageIndex + 1}.jpg"
             s3Template.upload(bucketName, key, imageInputStream)
 
             uploadedImageUrls.add("https://$bucketName.s3.amazonaws.com/$key")

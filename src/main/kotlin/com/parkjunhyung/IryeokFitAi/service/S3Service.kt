@@ -20,7 +20,9 @@ class S3Service (
     private val s3Template: S3Template,
     private val s3Client: S3Client,
     @Value("\${spring.cloud.aws.s3.bucket}")
-    private val bucketName: String
+    private val bucketName: String,
+    @Value("\${spring.cloud.aws.s3.directory}")
+    private val directory: String
 ) {
     private fun encodeUserId(userId: Long): String {
         val digest = MessageDigest.getInstance("SHA-256")
@@ -30,7 +32,7 @@ class S3Service (
 
     fun uploadPdf(userId: Long, resumeId: Long, file: MultipartFile): String {
         val encodedUserId = encodeUserId(userId)
-        val key = "users/$encodedUserId/resumes/$resumeId/original.pdf"
+        val key = "$directory/$encodedUserId/resumes/$resumeId/original.pdf"
         val inputStream: InputStream = file.inputStream
 
         println("업로드: ${file.originalFilename}, 크기: ${file.size} bytes")

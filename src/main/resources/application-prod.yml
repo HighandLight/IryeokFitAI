@@ -20,6 +20,7 @@ spring:
         static: ${AWS_REGION}
       s3:
         bucket: ${AWS_S3_BUCKET}
+        directory: ${AWS_DIRECTORY}
 
   ai:
     openai:

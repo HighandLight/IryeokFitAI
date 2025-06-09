@@ -24,18 +24,19 @@ pipeline {
             }
         }
 
-        stage('Docker Build') {
-            steps {
-                sh "docker build -t ${IMAGE_NAME}:${BUILD_NUMBER} ."
-            }
-        }
+        // Docker 배포 시 넣는거로
+//         stage('Docker Build') {
+//             steps {
+//                 sh "docker build -t ${IMAGE_NAME}:${BUILD_NUMBER} ."
+//             }
+//         }
 
         stage('Deploy') {
             steps {
-                sshagent(['github-pat']) {
+                sshagent(['iryeokfit-server-key']) {
                     sh '''
-                        scp build/libs/*.jar ubuntu@3.25.59.255:~/deploy/
-                        ssh ubuntu@3.25.59.255 'bash ~/deploy/restart.sh'
+                        scp build/libs/*.jar junhyung@14.42.39.186:~/deploy/
+                        ssh junhyung@14.42.39.186 'bash ~/deploy/restart.sh'
                     '''
                 }
             }

@@ -18,6 +18,7 @@ pipeline {
             }
         }
 
+
 //         stage('Test') {
 //             steps {
 //                 sh './gradlew test'
@@ -35,6 +36,8 @@ pipeline {
             steps {
                 sshagent(['iryeokfit-server-key']) {
                     sh '''
+                        mkdir -p ~/.ssh
+                        ssh-keyscan -H 14.42.39.186 >> ~/.ssh/known_hosts
                         scp build/libs/*.jar junhyung@14.42.39.186:~/deploy/
                         ssh junhyung@14.42.39.186 'bash ~/deploy/restart.sh'
                     '''

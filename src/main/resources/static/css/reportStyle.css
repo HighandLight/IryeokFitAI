@@ -9,6 +9,7 @@ body {
 
 .sidebar {
     width: 20%;
+    height: 100vh;
     background-color: #f8f8f8;
     padding: 20px;
     border-right: 1px solid #ddd;
@@ -38,6 +39,10 @@ body {
 #reportList .report-item.selected {
     background-color: #b0d4ff;
     font-weight: bold;
+}
+
+.sidebar {
+    border-radius: 12px;
 }
 
 .container {

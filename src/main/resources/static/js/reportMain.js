@@ -26,6 +26,7 @@ function getUserIdFromToken() {
         alert("세션이 만료되었습니다. 다시 로그인해주세요.");
         localStorage.removeItem("token");
         localStorage.removeItem("userId");
+        localStorage.removeItem("username");
         window.location.href = "/signin";
         return null;
     }

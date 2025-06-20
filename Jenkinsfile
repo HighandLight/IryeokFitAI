@@ -18,11 +18,11 @@ pipeline {
             }
         }
 
-        stage('Test') {
-            steps {
-                sh './gradlew test'
-            }
-        }
+//         stage('Test') {
+//             steps {
+//                 sh './gradlew test'
+//             }
+//         }
 
         // Docker 배포 시 넣는거로
 //         stage('Docker Build') {

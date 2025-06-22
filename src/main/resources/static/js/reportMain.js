@@ -19,6 +19,16 @@ function getReportIdFromURL() {
     return urlParams.get("reportId");
 }
 
+document.addEventListener("DOMContentLoaded", () => {
+    const toggleBtn = document.querySelector(".toggle-sidebar-btn");
+    const sidebar = document.querySelector(".sidebar");
+
+    toggleBtn.addEventListener("click", () => {
+        sidebar.classList.toggle("active");
+    });
+});
+
+
 function getUserIdFromToken() {
     const token = localStorage.getItem("token");
 

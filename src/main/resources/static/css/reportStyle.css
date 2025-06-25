@@ -1,21 +1,108 @@
-body {
-    margin: 0;
-    padding: 0;
-    font-family: 'Arial', sans-serif;
-    display: flex;
-    height: 100vh;
-    box-sizing: border-box;
+:root {
+    --text-color: #f5deb3;
+    --background-color: #263343;
+    --accent-color: #eaae0a;
 }
 
+/*.layout-width {*/
+/*    max-width: 1200px;*/
+/*    margin: 0 auto;*/
+/*    width: 100%;*/
+/*    box-sizing: border-box;*/
+/*}*/
+
+body {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    padding-top: 70px;  /* nav 높이만큼 */
+    font-family: 'Arial', sans-serif;
+    box-sizing: border-box;
+    overflow-x: hidden;
+}
+.main-content {
+    width: 100%;
+    max-width: none;
+    display: flex;
+    height: calc(100vh - 70px);
+}
+
+a {
+    text-decoration : none;
+    color : var(--text-color);
+}
+
+nav {
+
+    font-family: "Jersey 15", serif;
+    font-weight: 400;
+    font-style: normal;
+    font-size: 30px;
+}
+.logo {
+    height: 40px;
+    vertical-align: middle;
+    /*margin-right: 10px;*/
+}
+
+.navbar {
+    width: 100%;
+    position: fixed;
+    top: 0; left: 0;
+    height: 70px;
+    background-color: var(--background-color);
+    z-index: 100;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+.navbar__inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 100%;
+    padding: 0 20px;
+}
+
+.navbar__menu,
+.navbar__icons {
+    display: flex;
+    list-style: none;
+    padding-left: 0;
+}
+
+.navbar__menu li,
+.navbar__icons li {
+    margin-left: 20px;
+    color: var(--text-color);
+}
+
+.upload-resume-btn {
+    background-color: var(--accent-color);
+    color: black;
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+
 .sidebar {
-    width: 20%;
-    height: 100vh;
+    width: 320px; /* 또는 25%, 혹은 고정 px 단위 권장 */
+    min-width: 320px;  /* 좁아지지 않도록 최소 보장 */
+    max-width: 350px;  /* 너무 넓어지지 않도록 제한 */
+    height: 100%;
     background-color: #f8f8f8;
     padding: 20px;
     border-right: 1px solid #ddd;
+    overflow-y: auto;
+    box-sizing: border-box;
+}
+.container {
+    flex-grow: 1;
+    padding: 20px;
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    box-sizing: border-box;
 }
 
 #reportList {
@@ -43,13 +130,6 @@ body {
 
 .sidebar {
     border-radius: 12px;
-}
-
-.container {
-    flex-grow: 1;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
 }
 
 h2 {
@@ -184,11 +264,6 @@ h2 {
 
     .sidebar.active {
         left: 0;
-    }
-
-    .container {
-        width: 100%;
-        padding: 80px 10px 10px 10px;
     }
 
     .resume-section {

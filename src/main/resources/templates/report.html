@@ -1,39 +1,52 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>이력서 첨삭 결과</title>
+
+    <!-- 스크립트 & 스타일 -->
     <script src="/js/authUtils.js"></script>
-    <script src="/js/reportMain.js"></script>
-    <link rel="stylesheet" href="/css/reportStyle.css">
+    <script src="/js/reportMain.js" defer></script>
     <script src="https://kit.fontawesome.com/ce307ac1c5.js" crossorigin="anonymous"></script>
-
+    <link rel="stylesheet" href="/css/reportStyle.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Jersey+15&display=swap" rel="stylesheet" />
 </head>
+
 <body>
-<button class="toggle-sidebar-btn">
-    <i class="fa-solid fa-bars"></i>
-</button>
-
-<div class="sidebar">
-<!--    <input type="file" accept="application/pdf">-->
-<!--    <input type="text" placeholder="공고 URL 입력">-->
-<!--    <button>분석하기</button>-->
-    <div id="reportList" class="scrollable-list">
-    </div>
-</div>
-
-<div class="container">
-    <h2>이력서 첨삭 결과</h2>
-    <div class="resume-section">
-        <div id="resumeContainer" class="resume-box">
-            <h3>📂 기존 이력서</h3>
-            <img id="resumeImage" src="" alt="이력서 미리보기" />
+<nav class="navbar">
+    <div class="navbar__inner">
+        <div class="navbar__logo">
+            <img src="/img/iryeokfitMainLogo2.png" alt="IryeokFit Logo" class="logo" />
+            <a href="#">IRYEOKFIT</a>
         </div>
 
-        <div id="feedbackSection" class="feedback-section scrollable-list">
-        </div>
+        <button id="openResumeModal" class="upload-resume-btn">새 이력서 첨삭</button>
+
+        <ul class="navbar__menu">
+            <li><a href="#">LIKED</a></li>
+        </ul>
     </div>
+</nav>
+
+<div class="main-content">
+    <aside class="sidebar">
+        <div id="reportList" class="scrollable-list"></div>
+    </aside>
+
+    <main class="container">
+        <h2>이력서 첨삭 결과</h2>
+
+        <div class="resume-section">
+            <div id="resumeContainer" class="resume-box">
+                <h3>📂 기존 이력서</h3>
+                <img id="resumeImage" src="" alt="이력서 미리보기" />
+            </div>
+            <div id="feedbackSection" class="feedback-section scrollable-list"></div>
+        </div>
+    </main>
 </div>
 </body>
 </html>

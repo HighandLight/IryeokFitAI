@@ -8,45 +8,62 @@
     <!-- 스크립트 & 스타일 -->
     <script src="/js/authUtils.js"></script>
     <script src="/js/reportMain.js" defer></script>
-    <script src="https://kit.fontawesome.com/ce307ac1c5.js" crossorigin="anonymous"></script>
+    <script src="/js/modalHandler.js" defer></script>
     <link rel="stylesheet" href="/css/reportStyle.css" />
+    <link rel="stylesheet" href="/css/modalStyle.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Jersey+15&display=swap" rel="stylesheet" />
 </head>
 
 <body>
-<nav class="navbar">
-    <div class="navbar__inner">
-        <div class="navbar__logo">
-            <img src="/img/iryeokfitMainLogo2.png" alt="IryeokFit Logo" class="logo" />
-            <a href="#">IRYEOKFIT</a>
-        </div>
-
-        <button id="openResumeModal" class="upload-resume-btn">새 이력서 첨삭</button>
-
-        <ul class="navbar__menu">
-            <li><a href="#">LIKED</a></li>
-        </ul>
-    </div>
-</nav>
-
-<div class="main-content">
-    <aside class="sidebar">
-        <div id="reportList" class="scrollable-list"></div>
-    </aside>
-
-    <main class="container">
-        <h2>이력서 첨삭 결과</h2>
-
-        <div class="resume-section">
-            <div id="resumeContainer" class="resume-box">
-                <h3>📂 기존 이력서</h3>
-                <img id="resumeImage" src="" alt="이력서 미리보기" />
+<!-- ✅ 배경 흐림 처리용 래퍼 -->
+<div id="blurWrapper">
+    <nav class="navbar">
+        <div class="navbar__inner">
+            <div class="navbar__logo">
+                <img src="/img/iryeokfitMainLogo2.png" alt="IryeokFit Logo" class="logo" />
+                <a href="#">IRYEOKFIT</a>
             </div>
-            <div id="feedbackSection" class="feedback-section scrollable-list"></div>
+
+            <button id="openResumeModal" class="upload-resume-btn">새 이력서 첨삭</button>
+
+            <ul class="navbar__menu">
+                <li><a href="#">LIKED</a></li>
+            </ul>
         </div>
-    </main>
+    </nav>
+
+    <div class="main-content">
+        <aside class="sidebar">
+            <div id="reportList" class="scrollable-list"></div>
+        </aside>
+
+        <main class="container">
+            <h2>이력서 첨삭 결과</h2>
+
+            <div class="resume-section">
+                <div id="resumeContainer" class="resume-box">
+                    <h3>📂 기존 이력서</h3>
+                    <img id="resumeImage" src="" alt="이력서 미리보기" />
+                </div>
+                <div id="feedbackSection" class="feedback-section scrollable-list"></div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<div id="newFeedbackModal" class="modal hidden">
+    <div class="modal-content">
+        <img src="/img/iryeokfitMainLogo2.png" alt="IryeokFit Main Logo" class="logo" style="max-width: 120px; margin-bottom: 10px;">
+        <h2>새 피드백 생성</h2>
+        <input type="text" placeholder="🔗 채용 공고 URL 입력" id="modalJobUrl">
+        <label for="modalResumeUpload" class="file-label">📄 기존 이력서 업로드 (PDF)</label>
+        <input type="file" accept="application/pdf" id="modalResumeUpload" style="display: none;">
+        <br>
+        <button id="modalAnalyzeButton">🚀 첨삭 시작</button>
+        <button id="modalCloseButton" class="tertiary" style="margin-top:10px">❌ 닫기</button>
+    </div>
 </div>
 </body>
 </html>

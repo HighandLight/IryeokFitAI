@@ -1,0 +1,84 @@
+/*삭제 예정*/
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(3px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+.modal.hidden {
+    display: none;
+}
+
+.modal-content {
+    background: white;
+    padding: 30px;
+    border-radius: 16px;
+    width: 400px;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    font-family: 'Arial', sans-serif;
+}
+
+#blurWrapper.modal-active {
+    filter: blur(4px);
+    pointer-events: none;
+}
+
+.modal-content input[type="text"],
+.modal-content button,
+.modal-content .file-label {
+    width: calc(100% - 24px);
+    padding: 12px;
+    margin: 12px 0;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+    display: block;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.modal-content input[type="text"]::placeholder {
+    color: #888;
+}
+
+.modal-content .file-label {
+    background-color: #dcdcdc;
+    cursor: pointer;
+}
+
+.modal-content button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    font-weight: bold;
+    transition: background 0.3s ease;
+    cursor: pointer;
+}
+
+.modal-content button:hover {
+    background-color: #0056b3;
+}
+
+.modal-content button.tertiary {
+    background-color: #6c757d;
+}
+
+.modal-content button.tertiary:hover {
+    background-color: #5a6268;
+}
+
+.modal-content .logo {
+    max-width: 150px;
+    height: auto;
+    margin-bottom: 20px;
+}

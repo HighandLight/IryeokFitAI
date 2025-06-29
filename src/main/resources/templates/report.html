@@ -5,48 +5,108 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>이력서 첨삭 결과</title>
 
-    <!-- 스크립트 & 스타일 -->
     <script src="/js/authUtils.js"></script>
     <script src="/js/reportMain.js" defer></script>
-    <script src="https://kit.fontawesome.com/ce307ac1c5.js" crossorigin="anonymous"></script>
+    <script src="/js/modalHandler.js" defer></script>
     <link rel="stylesheet" href="/css/reportStyle.css" />
+    <link rel="stylesheet" href="/css/modalStyle.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Jersey+15&display=swap" rel="stylesheet" />
 </head>
 
 <body>
-<nav class="navbar">
-    <div class="navbar__inner">
-        <div class="navbar__logo">
-            <img src="/img/iryeokfitMainLogo2.png" alt="IryeokFit Logo" class="logo" />
-            <a href="#">IRYEOKFIT</a>
-        </div>
-
-        <button id="openResumeModal" class="upload-resume-btn">새 이력서 첨삭</button>
-
-        <ul class="navbar__menu">
-            <li><a href="#">LIKED</a></li>
-        </ul>
-    </div>
-</nav>
-
-<div class="main-content">
-    <aside class="sidebar">
-        <div id="reportList" class="scrollable-list"></div>
-    </aside>
-
-    <main class="container">
-        <h2>이력서 첨삭 결과</h2>
-
-        <div class="resume-section">
-            <div id="resumeContainer" class="resume-box">
-                <h3>📂 기존 이력서</h3>
-                <img id="resumeImage" src="" alt="이력서 미리보기" />
+<div id="blurWrapper">
+    <nav class="navbar">
+        <div class="navbar__inner">
+            <div class="navbar__logo">
+                <img src="/img/iryeokfitMainLogo2.png" alt="IryeokFit Logo" class="logo" />
+                <a href="#">IRYEOKFIT</a>
             </div>
-            <div id="feedbackSection" class="feedback-section scrollable-list"></div>
+
+            <button id="openResumeModal" class="upload-resume-btn">새 이력서 첨삭</button>
+
+            <ul class="navbar__menu">
+                <li><a href="#">LIKED</a></li>
+            </ul>
         </div>
-    </main>
+    </nav>
+
+    <div class="main-content">
+        <aside class="sidebar">
+            <div id="reportList" class="scrollable-list"></div>
+        </aside>
+
+        <main class="container">
+            <h2>이력서 첨삭 결과</h2>
+
+            <div class="resume-section">
+                <div id="resumeContainer" class="resume-box">
+                    <h3>📂 기존 이력서</h3>
+                    <img id="resumeImage" src="" alt="이력서 미리보기" />
+                </div>
+                <div id="feedbackSection" class="feedback-section scrollable-list"></div>
+            </div>
+        </main>
+    </div>
 </div>
+
+<div id="newFeedbackModal" class="modal hidden">
+    <div class="modal-content">
+        <img src="/img/iryeokfitMainLogo2.png" alt="IryeokFit Main Logo" class="logo" style="max-width: 120px; margin-bottom: 10px;">
+        <h2>새 피드백 생성</h2>
+        <input type="text" placeholder="🔗 채용 공고 URL 입력" id="jobUrl">
+        <label for="resumeUpload" class="file-label">📄 기존 이력서 업로드 (PDF)</label>
+        <input type="file" accept="application/pdf" id="resumeUpload" style="display: none;">
+        <br>
+        <button id="analyzeButton">🚀 첨삭 시작</button>
+        <button id="modalCloseButton" class="tertiary" style="margin-top:10px">❌ 닫기</button>
+    </div>
+</div>
+
+
+<div class="modal hidden" id="loadingModal">
+    <div class="modal-content">
+        <h3>채용 공고 확인중...</h3>
+        <div class="loading-spinner"></div>
+    </div>
+</div>
+
+<div class="modal hidden" id="errorModal">
+    <div class="modal-content">
+        <h3>해당 공고를 찾을 수 없습니다!</h3>
+        <div class="error-icon">❗</div>
+        <button onclick="closeErrorModal()">닫기</button>
+    </div>
+</div>
+
+<div class="modal hidden" id="fileErrorModal">
+    <div class="modal-content">
+        <h3>이력서를 업로드해주세요!</h3>
+        <div class="error-icon">❗</div>
+        <button onclick="closeFileErrorModal()">닫기</button>
+    </div>
+</div>
+
+<div class="modal hidden" id="urlErrorModal">
+    <div class="modal-content">
+        <h3>공고 URL을 입력해주세요!</h3>
+        <div class="error-icon">❗</div>
+        <button onclick="closeUrlErrorModal()">닫기</button>
+    </div>
+</div>
+
+<div class="modal hidden" id="jobModal">
+    <div class="modal-content">
+        <h3>지원하려는 공고 정보가 맞나요?</h3>
+        <p id="jobTitle"><strong></strong></p>
+        <p id="jobResponsibilities"></p>
+        <p id="jobSkills"></p>
+        <p id="jobRequirements"></p>
+        <button id="proceedButton" onclick="proceedToFeedback()">✅ 네, 진행할게요</button>
+        <button onclick="closeModal()">❌ 취소</button>
+    </div>
+</div>
+
 </body>
 </html>

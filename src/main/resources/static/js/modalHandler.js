@@ -45,13 +45,44 @@ analyzeBtn.addEventListener("click", async () => {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ jobUrl })
         });
+
         const parsed = await lambdaRes.json();
         if (!parsed.title) throw new Error("공고 분석 실패");
 
-        const formData = new FormData();
-        formData.append("userId", localStorage.getItem("userId"));
-        formData.append("file", resumeFile);
+        // 성공 시 전역 저장 및 모달 띄우기
+        window.resumeFile = resumeFile;
+        window.jobUrl = jobUrl;
 
+        showJobModal(parsed); // 중간 모달 띄우기
+        modal.classList.add("hidden");
+        blurWrapper.classList.remove("modal-active");
+
+    } catch (err) {
+        console.error("분석 실패:", err);
+        alert("공고 분석 중 오류가 발생했습니다.");
+    }
+});
+
+function showJobModal(parsed) {
+    document.getElementById("jobTitle").innerHTML = `<strong>${parsed.title}</strong>`;
+    document.getElementById("jobResponsibilities").innerText = parsed.responsibilities || '';
+    document.getElementById("jobSkills").innerText = parsed.skills || '';
+    document.getElementById("jobRequirements").innerText = parsed.requirements || '';
+
+    window.jobPostingData = parsed;
+    document.getElementById("jobModal").classList.remove("hidden");
+}
+
+function closeJobModal() {
+    document.getElementById("jobModal").classList.add("hidden");
+}
+
+document.getElementById("proceedButton").addEventListener("click", async () => {
+    const formData = new FormData();
+    formData.append("userId", localStorage.getItem("userId"));
+    formData.append("file", window.resumeFile);
+
+    try {
         const uploadRes = await fetch("/resumes/upload", {
             method: "POST",
             headers: {
@@ -60,6 +91,8 @@ analyzeBtn.addEventListener("click", async () => {
             body: formData
         });
         const uploaded = await uploadRes.json();
+
+        const parsed = window.jobPostingData;
 
         const reportRes = await fetch("/reports", {
             method: "POST",
@@ -71,7 +104,7 @@ analyzeBtn.addEventListener("click", async () => {
                 userId: localStorage.getItem("userId"),
                 resumeId: uploaded.id,
                 title: parsed.title,
-                jobPostingUrl: jobUrl,
+                jobPostingUrl: window.jobUrl,
                 responsibilities: parsed.responsibilities,
                 requirements: parsed.requirements,
                 preferred: parsed.preferred,
@@ -87,7 +120,7 @@ analyzeBtn.addEventListener("click", async () => {
 
         window.location.href = `/report?reportId=${report.id}`;
     } catch (err) {
-        console.error("분석 실패:", err);
-        alert("분석 중 오류가 발생했습니다. 다시 시도해주세요.");
+        console.error("진행 실패:", err);
+        alert("피드백 생성 중 오류가 발생했습니다.");
     }
 });

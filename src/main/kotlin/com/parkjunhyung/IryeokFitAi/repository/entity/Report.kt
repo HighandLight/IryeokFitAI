@@ -14,42 +14,42 @@ class Report(
     val id: Long = 0L,
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "resume_id", nullable = false)
-    val resume: Resume,
+    @JoinColumn(name = "resume_id", nullable = true)
+    var resume: Resume? = null,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     val user: User,
 
-    @Column(name = "title", nullable = false, length = 255)
-    val title: String,
+    @Column(name = "title", nullable = true, length = 255)
+    var title: String? = null,
 
-    @Column(name = "job_posting_url", nullable = false, length = 500)
-    val jobPostingUrl: String,
+    @Column(name = "job_posting_url", nullable = true, length = 500)
+    var jobPostingUrl: String? = null,
 
-    @Column(name = "responsibilities", columnDefinition = "TEXT") //TODO: 길이 보고 바꿔야할수도?
-    val responsibilities: String? = null,
+    @Column(name = "responsibilities", columnDefinition = "TEXT")
+    var responsibilities: String? = null,
 
     @Column(name = "requirements", columnDefinition = "TEXT")
-    val requirements: String? = null,
+    var requirements: String? = null,
 
     @Column(name = "preferred", columnDefinition = "TEXT")
-    val preferred: String? = null,
+    var preferred: String? = null,
 
     @Column(name = "skills", columnDefinition = "TEXT")
-    val skills: String? = null,
+    var skills: String? = null,
+
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    var status: ReportStatus = ReportStatus.SAVED,
+    var status: ReportStatus = ReportStatus.WAITING,
 
     @field:CreationTimestamp
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "created_at", nullable = false)
     var createdAt: LocalDateTime = LocalDateTime.now()
-){
+) {
     @PrePersist
     fun onCreate() {
         this.createdAt = LocalDateTime.now()
     }
 }
-

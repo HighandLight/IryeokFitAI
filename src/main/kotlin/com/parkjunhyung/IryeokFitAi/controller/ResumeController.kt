@@ -29,8 +29,9 @@ class ResumeController(
     fun getResumeImageByReportId(@PathVariable reportId: Long): ResponseEntity<Map<String, String?>> {
         val report = reportService.getReportById(reportId)
 
-        val resumeId = report.resume.id
-        val resume = resumeService.getResumeById(resumeId)
+        val resume = report.resume
+            ?: throw IllegalArgumentException("해당 리포트에 연결된 이력서가 없습니다.")
+        val resumeId = resume.id
         val convertedUrl = resume.convertedImagePath
         val response = mapOf("convertedImageUrl" to convertedUrl)
         return ResponseEntity.ok(response)
@@ -50,14 +51,26 @@ class ResumeController(
 
     @PostMapping("/upload")
     fun uploadResume(
-        @RequestParam("userId")
-        userId: Long,
-        @RequestParam("file")
-        file: MultipartFile
+        @RequestParam("userId") userId: Long,
+        @RequestParam("file") file: MultipartFile
     ): ResponseEntity<ResumeDto> {
-        val resume = resumeService.uploadResume(userId, file)
-        return ResponseEntity.ok(resume.toResumeDto())
+        // 파일 비어있는지 체크
+        if (file.isEmpty) {
+            return ResponseEntity.badRequest().build()
+        }
+
+        return try {
+            val resume = resumeService.uploadResume(userId, file)
+            ResponseEntity.ok(resume.toResumeDto())
+        } catch (e: IllegalArgumentException) {
+            // ex, 존재하지 않는 사용자 ID
+            ResponseEntity.status(HttpStatus.NOT_FOUND).build()
+        } catch (e: Exception) {
+            // 예기치 않은 서버 오류?
+            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
+        }
     }
+
 
     @ExceptionHandler(IllegalArgumentException::class)
     @ResponseStatus(HttpStatus.NOT_FOUND)

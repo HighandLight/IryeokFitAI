@@ -1,4 +1,5 @@
 let lambdaFunctionUrl = "";
+let reportCache = []; // 전역 캐시 추가
 
 async function fetchLambdaUrl() {
     try {
@@ -13,12 +14,13 @@ async function fetchLambdaUrl() {
 
 document.addEventListener("DOMContentLoaded", async () => {
     await fetchLambdaUrl();
-    fetchReports();
+    await fetchReports(); // 초기 리포트 목록 로딩
     const reportId = getReportIdFromURL();
     if (reportId) {
         fetchResumeImage(reportId);
         fetchFeedbacks(reportId);
     }
+
     const toggleBtn = document.querySelector(".toggle-sidebar-btn");
     const sidebar = document.querySelector(".sidebar");
     toggleBtn?.addEventListener("click", () => sidebar.classList.toggle("active"));
@@ -46,7 +48,8 @@ async function fetchReports() {
     try {
         const response = await fetchWithAuth(`/reports/user/${userId}`);
         const reports = await response.json();
-        renderReportList(reports);
+        reportCache = reports; //  캐시에 저장
+        renderReportList(reportCache);
     } catch (error) {
         console.error("리포트 목록 에러:", error);
     }
@@ -56,11 +59,7 @@ function renderReportList(reports) {
     const container = document.getElementById("reportList");
     container.innerHTML = "";
 
-    reports.forEach((report) => { // 함수로 빼두고, 이력서 제출 시 받아오기?
-        // 호출 시
-        // reports 관리 -> 팝업에서 REPORTs 추가
-        // 데이터 Ui랜더링 분리
-
+    reports.forEach((report) => {
         const item = document.createElement("div");
         item.classList.add("report-item");
         item.textContent = report.title;
@@ -72,6 +71,7 @@ function renderReportList(reports) {
             document.querySelectorAll('.report-item').forEach(i => i.classList.remove("selected"));
             item.classList.remove("completed", "loading");
             item.classList.add("selected");
+            onReportClick(report.id); // 읽음 처리 - status COMPLETED -> SAVED 로 바꾼 후 배경 색 제거
             window.location.href = `/report?reportId=${report.id}`;
         });
 
@@ -105,100 +105,114 @@ async function pollReportStatus(reportId, itemEl) {
 
 // 피드백 진행 처리
 async function proceedToFeedback() {
-    const proceedButton = document.getElementById("proceedButton");
-    proceedButton.disabled = true;
-    proceedButton.innerHTML = `
-        <div class="loading-bar"></div> 피드백 생성중...
-    `;
-
-    const jobUrl = document.getElementById("jobUrl").value.trim();
-    const resumeInput = document.getElementById("resumeUpload");
-    const resumeFile = resumeInput.files[0];
-    const userId = localStorage.getItem("userId");
-
-    const formData = new FormData();
-    formData.append("userId", userId);
-    formData.append("file", resumeFile);
-
-    let uploadedResume;
-    try {
-        const uploadResponse = await fetch("/resumes/upload", {
-            method: "POST",
-            headers: {
-                Authorization: `Bearer ${localStorage.getItem("token")}`
-            },
-            body: formData,
-        });
-        uploadedResume = await uploadResponse.json();
-    } catch (error) {
-        console.error("이력서 업로드 실패:", error);
-        proceedButton.innerHTML = "✅ 네, 진행할게요";
-        proceedButton.disabled = false;
-        return;
-    }
-
-    const jobPostingData = window.jobPostingData || {};
-
-    const reportData = {
-        userId: userId,
-        resumeId: uploadedResume.id,
-        title: jobPostingData.title || "새로운 공고",
-        jobPostingUrl: jobUrl,
-        responsibilities: jobPostingData.responsibilities,
-        requirements: jobPostingData.requirements,
-        preferred: jobPostingData.preferred,
-        skills: jobPostingData.skills
-    };
-
-    let report;
-    try {
-        const reportResponse = await fetchWithAuth("/reports", {
-            method: "POST",
-            body: JSON.stringify(reportData),
-        });
-
-        report = await reportResponse.json();
-    } catch (error) {
-        console.error("리포트 생성 실패:", error);
-        proceedButton.innerHTML = "✅ 네, 진행할게요";
-        proceedButton.disabled = false;
-        return;
-    }
-
-    try {
-        const feedbackResponse = await fetchWithAuth(`/feedbacks/generate/${report.id}`, {
-            method: "POST",
-        });
-
-        if (!feedbackResponse.ok) {
-            console.error("피드백 생성 실패");
-            proceedButton.innerHTML = "✅ 네, 진행할게요";
-            proceedButton.disabled = false;
-            return;
-        }
-    } catch (error) {
-        console.error("피드백 생성 요청 오류:", error);
-        proceedButton.innerHTML = "✅ 네, 진행할게요";
-        proceedButton.disabled = false;
-        return;
-    }
-
-    //  모든 모달 닫기
     closeModal();
     document.getElementById("newFeedbackModal").classList.add("hidden");
     document.getElementById("blurWrapper").classList.remove("modal-active");
 
-    //  리스트에 즉시 반영
-    reportCache.unshift(report);
-    renderReportList(reportCache);
+    const proceedButton = document.getElementById("proceedButton");
+    proceedButton.disabled = true;
+    proceedButton.innerHTML = `<div class="loading-bar"></div> 피드백 생성중...`;
 
-    //  방금 추가된 첫 번째 item에 polling 시작
-    const newItem = document.querySelector(".report-item");
+    const userId = localStorage.getItem("userId");
+    const jobUrl = document.getElementById("jobUrl").value.trim();
+    const resumeInput = document.getElementById("resumeUpload");
+    const resumeFile = resumeInput.files[0];
+    const jobPostingData = window.jobPostingData || {};
+
+    // report 선 생성 (resume 없이 - polling 구현 위함)
+    let report;
+    try {
+        const res = await fetchWithAuth("/reports", {
+            method: "POST",
+            body: JSON.stringify({
+                userId: userId,
+                title: "공고를 불러오는 중입니다..", // (TTT-1) TODO : 어떻게 바꾸맂?적절한 메세지?
+                jobPostingUrl: jobUrl
+            }),
+        });
+        report = await res.json();
+        reportCache.unshift(report);
+        renderReportList(reportCache);
+    } catch (e) {
+        console.error("report 선 생성 실패", e);
+        return;
+    }
+
+    //  resume 업로드
+    let uploadedResume;
+    try {
+        const formData = new FormData();
+        formData.append("userId", userId);
+        formData.append("file", resumeFile);
+
+        const res = await fetch("/resumes/upload", {
+            method: "POST",
+            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+            body: formData,
+        });
+
+        uploadedResume = await res.json();
+    } catch (e) {
+        console.error("이력서 업로드 실패", e);
+        return;
+    }
+
+    // report 정보 PATCH로 업데이트
+    try {
+        const updateData = {
+            resumeId: uploadedResume.id,
+            title: jobPostingData.title || "제목 없음",
+            jobPostingUrl: jobUrl,
+            responsibilities: jobPostingData.responsibilities,
+            requirements: jobPostingData.requirements,
+            preferred: jobPostingData.preferred,
+            skills: jobPostingData.skills
+        };
+
+        await fetchWithAuth(`/reports/${report.id}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(updateData)
+        });
+
+        //캐시 내 report 내용 갱신 및 다시 렌더링 -> ((TTT-1) 문구 변경하도록)
+        Object.assign(report, updateData);
+        renderReportList(reportCache);
+    } catch (e) {
+        console.error("report 업데이트 실패", e);
+        return;
+    }
+
+
+    // 피드백 생성
+    try {
+        const feedbackRes = await fetchWithAuth(`/feedbacks/generate/${report.id}`, {
+            method: "POST"
+        });
+
+        if (!feedbackRes.ok) throw new Error("피드백 실패");
+    } catch (e) {
+        console.error("피드백 생성 실패", e);
+        return;
+    }
+
+    // 상태 polling 및 시각적 반영
+    const reportItems = document.querySelectorAll(".report-item");
+    const newItem = reportItems[0];
     if (newItem) {
+        newItem.classList.add("selected");
         pollReportStatus(report.id, newItem);
     }
 }
 
+function onReportClick(reportId) {
+    fetch(`/reports/${reportId}/mark-as-read`, {
+        method: "GET",
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+    }).then(() => {
+        window.location.href = `/report.html?reportId=${reportId}`;
+    });
+}
 
 // 이력서 이미지 및 피드백
 async function fetchResumeImage(reportId) {

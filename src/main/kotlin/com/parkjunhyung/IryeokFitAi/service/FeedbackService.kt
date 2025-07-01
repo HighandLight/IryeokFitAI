@@ -4,6 +4,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.parkjunhyung.IryeokFitAi.repository.*
 import com.parkjunhyung.IryeokFitAi.repository.entity.ENUM.FeedbackStatus
+import com.parkjunhyung.IryeokFitAi.repository.entity.ENUM.ReportStatus
 import com.parkjunhyung.IryeokFitAi.repository.entity.Feedback
 import com.parkjunhyung.IryeokFitAi.repository.entity.FeedbackPriority
 import com.parkjunhyung.IryeokFitAi.repository.entity.Report
@@ -29,22 +30,15 @@ class FeedbackService(
             .orElseThrow { IllegalArgumentException("Report 없음: $reportId") }
         val resume = report.resume
 
-        val resumeText = resume.resumeText ?: "(이력서 텍스트 없음)"
-        val jobPostingTitle = report.title
-        val jobPostingUrl = report.jobPostingUrl
-        val responsibilities = report.responsibilities
-        val requirements = report.requirements
-        val preferred = report.preferred
-        val skills = report.skills
-
+        val resumeText = resume?.resumeText ?: "(이력서 텍스트 없음)"
         val jobPostingText = """
-            Title: $jobPostingTitle
-            URL: $jobPostingUrl
-            RESPONSIBILITIES: $responsibilities
-            REQUIREMENTS: $requirements
-            PREFERRED: $preferred
-            SKILLS: $skills
-        """.trimIndent()
+        Title: ${report.title}
+        URL: ${report.jobPostingUrl}
+        RESPONSIBILITIES: ${report.responsibilities}
+        REQUIREMENTS: ${report.requirements}
+        PREFERRED: ${report.preferred}
+        SKILLS: ${report.skills}
+    """.trimIndent()
 
         val prompt = buildPrompt(jobPostingText, resumeText)
 
@@ -59,11 +53,15 @@ class FeedbackService(
             .replace("```", "")
             .trim()
 
-
         val newFeedbacks = parseFeedbackJson(cleanedResponse, report)
+
+        // 피드백 저장 + report 상태 변경
+        report.status = ReportStatus.COMPLETED
+        reportRepository.save(report)
 
         return feedbackRepository.saveAll(newFeedbacks)
     }
+
 
     private fun buildPrompt(jobPostingText: String, resumeText: String): String {
         return """

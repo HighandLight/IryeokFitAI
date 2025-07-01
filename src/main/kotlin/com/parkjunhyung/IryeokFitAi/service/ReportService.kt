@@ -6,6 +6,7 @@ import com.parkjunhyung.IryeokFitAi.repository.UserRepository
 import com.parkjunhyung.IryeokFitAi.repository.entity.ENUM.ReportStatus
 import com.parkjunhyung.IryeokFitAi.repository.entity.Report
 import com.parkjunhyung.IryeokFitAi.request.CreateReportRequest
+import com.parkjunhyung.IryeokFitAi.request.UpdateReportRequest
 import io.awspring.cloud.s3.S3Template
 import jakarta.transaction.Transactional
 import org.springframework.beans.factory.annotation.Value
@@ -20,8 +21,10 @@ class ReportService(
 ) {
     @Transactional
     fun createReport(request: CreateReportRequest): Report {
-        val resume = resumeRepository.findById(request.resumeId)
-            .orElseThrow { throw IllegalArgumentException("Resume 없음: ${request.resumeId}") }
+        val resume = request.resumeId?.let { // resume가 null일 수 있도록 바꿈(polling - report 선 생성)
+            resumeRepository.findById(it)
+                .orElseThrow { throw IllegalArgumentException("Resume 없음: ${request.resumeId}") }
+        }
 
         val user = userRepository.findById(request.userId)
             .orElseThrow { throw IllegalArgumentException("User 없음: ${request.userId}") }
@@ -38,6 +41,7 @@ class ReportService(
     fun getReportByUser(userId: Long): List<Report> {
         return reportRepository.findByUserId(userId)
             .filter { it.status != ReportStatus.DELETED }
+            .sortedByDescending { it.id } // 최신 report 순으로 오도록(내림차순)
     }
 
 
@@ -49,6 +53,37 @@ class ReportService(
         reportRepository.save(report)
     }
 
+    @Transactional
+    fun updateReport(reportId: Long, req: UpdateReportRequest): Report {
+        val report = reportRepository.findById(reportId) // polling - report 값 업데이트
+            .orElseThrow { IllegalArgumentException("Report not found") }
+
+        req.title?.let { report.title = it }
+        req.jobPostingUrl?.let { report.jobPostingUrl = it }
+        req.responsibilities?.let { report.responsibilities = it }
+        req.requirements?.let { report.requirements = it }
+        req.preferred?.let { report.preferred = it }
+        req.skills?.let { report.skills = it }
+        req.status?.let { report.status = it }
+
+
+        req.resumeId?.let {
+            val resume = resumeRepository.findById(it)
+                .orElseThrow { IllegalArgumentException("Resume not found") }
+            report.resume = resume
+        }
+
+        return reportRepository.save(report)
+    }
+
+    @Transactional
+    fun markAsRead(reportId: Long) { // 피드백 생성 완료 후, 유저가 확인(열람)한 report 구분하기 위함(UX)
+        val report = reportRepository.findById(reportId).orElseThrow()
+        if (report.status == ReportStatus.COMPLETED) {
+            report.status = ReportStatus.SAVED
+            reportRepository.save(report)
+        }
+    }
     @Transactional
     fun deleteReport(reportId: Long) {
         val report = reportRepository.findById(reportId)

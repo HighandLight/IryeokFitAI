@@ -5,6 +5,7 @@ import com.parkjunhyung.IryeokFitAi.dto.toReportDto
 import com.parkjunhyung.IryeokFitAi.repository.entity.ENUM.ReportStatus
 import com.parkjunhyung.IryeokFitAi.repository.entity.Report
 import com.parkjunhyung.IryeokFitAi.request.CreateReportRequest
+import com.parkjunhyung.IryeokFitAi.request.UpdateReportRequest
 import com.parkjunhyung.IryeokFitAi.service.ReportService
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -26,6 +27,12 @@ class ReportController(
         return ResponseEntity.ok(report.toReportDto())
     }
 
+    @GetMapping("/{reportId}/mark-as-read")
+    fun markAsRead(@PathVariable reportId: Long): ResponseEntity<Void> {
+        reportService.markAsRead(reportId)
+        return ResponseEntity.ok().build()
+    }
+
     @GetMapping("/user/{userId}")
     fun getReportsByUser(@PathVariable userId: Long): ResponseEntity<List<ReportDto>> {
         val reports = reportService.getReportByUser(userId).map { it.toReportDto() }
@@ -36,6 +43,15 @@ class ReportController(
     fun updateReportStatus(@PathVariable reportId: Long, @RequestParam status: ReportStatus): ResponseEntity<Void> {
         reportService.updateReportStatus(reportId, status)
         return ResponseEntity.noContent().build()
+    }
+
+    @PatchMapping("/{reportId}")
+    fun updateReport(
+        @PathVariable reportId: Long,
+        @RequestBody request: UpdateReportRequest
+    ): ResponseEntity<ReportDto> {
+        val updated = reportService.updateReport(reportId, request)
+        return ResponseEntity.ok(updated.toReportDto())
     }
 
     @DeleteMapping("/{reportId}")

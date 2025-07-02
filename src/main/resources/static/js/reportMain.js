@@ -110,8 +110,6 @@ async function proceedToFeedback() {
     document.getElementById("blurWrapper").classList.remove("modal-active");
 
     const proceedButton = document.getElementById("proceedButton");
-    proceedButton.disabled = true;
-    proceedButton.innerHTML = `<div class="loading-bar"></div> 피드백 생성중...`;
 
     const userId = localStorage.getItem("userId");
     const jobUrl = document.getElementById("jobUrl").value.trim();
@@ -280,6 +278,19 @@ function getPriorityEmoji(priority) {
     }
 }
 
+function resetModalState() { // 새 이력서 첨삭 시, 기존 모달 내용 초기화
+    // 입력값 초기화
+    document.getElementById("jobUrl").value = "";
+    document.getElementById("resumeUpload").value = "";
+    // 전역 변수 초기화
+    window.jobPostingData = null;
+    // jobModal 내용 초기화
+    document.getElementById("jobTitle").innerHTML = "";
+    document.getElementById("jobResponsibilities").innerHTML = "";
+    document.getElementById("jobSkills").innerHTML = "";
+    document.getElementById("jobRequirements").innerHTML = "";
+}
+
 // 모달 관련
 function showLoadingModal() { document.getElementById('loadingModal').style.display = 'flex'; }
 function closeLoadingModal() { document.getElementById('loadingModal').style.display = 'none'; }
@@ -320,6 +331,7 @@ document.getElementById("analyzeButton").addEventListener("click", async () => {
 
 document.getElementById("proceedButton").addEventListener("click", proceedToFeedback);
 document.getElementById("openResumeModal").addEventListener("click", () => {
+    resetModalState();  // IRYEOKFIT-022 관련, 기존 모달 초기화
     document.getElementById("newFeedbackModal").classList.remove("hidden");
     document.getElementById("blurWrapper").classList.add("modal-active");
 });

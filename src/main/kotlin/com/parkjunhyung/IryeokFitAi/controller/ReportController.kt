@@ -33,6 +33,12 @@ class ReportController(
         return ResponseEntity.ok().build()
     }
 
+    @GetMapping("/{reportId}/wait-complete")
+    fun waitUntilComplete(@PathVariable reportId: Long): ResponseEntity<ReportDto> {
+        val report = reportService.waitUntilCompleted(reportId)
+        return ResponseEntity.ok(report.toReportDto())
+    }
+
     @GetMapping("/user/{userId}")
     fun getReportsByUser(@PathVariable userId: Long): ResponseEntity<List<ReportDto>> {
         val reports = reportService.getReportByUser(userId).map { it.toReportDto() }

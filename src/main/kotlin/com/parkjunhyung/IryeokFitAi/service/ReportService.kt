@@ -85,6 +85,20 @@ class ReportService(
         }
     }
     @Transactional
+    fun waitUntilCompleted(reportId: Long, timeoutMs: Long = 30_000, intervalMs: Long = 2000): Report {
+        val start = System.currentTimeMillis()
+
+        while (System.currentTimeMillis() - start < timeoutMs) {
+            val report = getReportById(reportId)
+            if (report.status == ReportStatus.COMPLETED) {
+                return report
+            }
+            Thread.sleep(intervalMs)
+        }
+
+        return getReportById(reportId) // timeout 후에도 미완료면 현재 상태 반환
+    }
+    @Transactional
     fun deleteReport(reportId: Long) {
         val report = reportRepository.findById(reportId)
             .orElseThrow {IllegalArgumentException("report 없음: report_id : $reportId") }

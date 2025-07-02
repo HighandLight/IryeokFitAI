@@ -77,31 +77,53 @@ function renderReportList(reports) {
 
         container.appendChild(item);
 
-        if (report.status === "WAITING") pollReportStatus(report.id, item);
+        // if (report.status === "WAITING") pollReportStatus(report.id, item);
+        if (report.status === "WAITING") longPollReportStatus(report.id, item);
     });
 }
 
-async function pollReportStatus(reportId, itemEl) {
-    let attempts = 0;
-    const max = 60;
-    const interval = 3000;
+const pollingSet = new Set(); // 중복 방지를 위한 Set
+async function longPollReportStatus(reportId, itemEl) {
+    if (pollingSet.has(reportId)) return; // 중복 방지
+    pollingSet.add(reportId);// 중복방지
 
-    const poll = async () => {
-        try {
-            const res = await fetchWithAuth(`/reports/${reportId}`);
-            const report = await res.json();
-            if (report.status === "COMPLETED") {
-                itemEl.classList.remove("loading");
-                itemEl.classList.add("completed");
-            } else if (attempts++ < max) {
-                setTimeout(poll, interval);
-            }
-        } catch (e) {
-            console.error("폴링 실패:", e);
+    try {
+        const response = await fetchWithAuth(`/reports/${reportId}/wait-complete`);
+        const report = await response.json();
+        if (report.status === "COMPLETED") {
+            itemEl.classList.remove("loading");
+            itemEl.classList.add("completed");
+        } else {
+            console.warn("잘못된 상태:", report.status);
         }
-    };
-    poll();
+    } catch (e) {
+        console.error("롱폴링 실패:", e);
+        // 실패 시 몇 초 후 재시도
+        setTimeout(() => longPollReportStatus(reportId, itemEl), 3000);
+    }
 }
+
+// async function pollReportStatus(reportId, itemEl) {
+//     let attempts = 0;
+//     const max = 60;
+//     const interval = 3000;
+//
+//     const poll = async () => {
+//         try {
+//             const res = await fetchWithAuth(`/reports/${reportId}`);
+//             const report = await res.json();
+//             if (report.status === "COMPLETED") {
+//                 itemEl.classList.remove("loading");
+//                 itemEl.classList.add("completed");
+//             } else if (attempts++ < max) {
+//                 setTimeout(poll, interval);
+//             }
+//         } catch (e) {
+//             console.error("폴링 실패:", e);
+//         }
+//     };
+//     poll();
+// }
 
 // 피드백 진행 처리
 async function proceedToFeedback() {
@@ -199,7 +221,10 @@ async function proceedToFeedback() {
     const newItem = reportItems[0];
     if (newItem) {
         newItem.classList.add("selected");
-        pollReportStatus(report.id, newItem);
+
+        // pollReportStatus(report.id, newItem);
+
+        // longPollReportStatus(report.id, newItem);
     }
 }
 

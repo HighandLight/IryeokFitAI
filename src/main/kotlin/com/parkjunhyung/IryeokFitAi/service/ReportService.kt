@@ -9,6 +9,7 @@ import com.parkjunhyung.IryeokFitAi.request.CreateReportRequest
 import com.parkjunhyung.IryeokFitAi.request.UpdateReportRequest
 import io.awspring.cloud.s3.S3Template
 import jakarta.transaction.Transactional
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import software.amazon.awssdk.utils.StringInputStream
@@ -104,5 +105,15 @@ class ReportService(
             .orElseThrow {IllegalArgumentException("report 없음: report_id : $reportId") }
         report.status = ReportStatus.DELETED
         reportRepository.save(report)
+    }
+
+    @Autowired
+    lateinit var reportStatusNotifier: ReportStatusNotifier
+
+    fun markAsCompleted(reportId: Long) {
+        val report = getReportById(reportId)
+        report.status = ReportStatus.COMPLETED
+        reportRepository.save(report)
+        reportStatusNotifier.notifyStatusCompleted(report.id)
     }
 }

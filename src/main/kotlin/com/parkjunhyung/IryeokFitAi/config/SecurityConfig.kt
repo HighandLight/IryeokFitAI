@@ -34,7 +34,7 @@ class SecurityConfig(
             .cors {it.disable()}
             .authorizeHttpRequests { auth ->
                 auth
-                    .requestMatchers("/", "/config/lambda-url", "/report", "/auth/login", "/index", "signin", "/signup", "/users", "/css/**", "/js/**", "/img/**", "/error").permitAll()
+                    .requestMatchers("/", "/config/lambda-url","/ws/**", "/report", "/auth/login", "/index", "signin", "/signup", "/users", "/css/**", "/js/**", "/img/**", "/error").permitAll()
                     .anyRequest().authenticated()
             }
             .sessionManagement { session ->

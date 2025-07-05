@@ -78,7 +78,10 @@ function renderReportList(reports) {
         container.appendChild(item);
 
         // if (report.status === "WAITING") pollReportStatus(report.id, item);
-        if (report.status === "WAITING") longPollReportStatus(report.id, item);
+        // if (report.status === "WAITING") longPollReportStatus(report.id, item);
+        if (report.status === "WAITING") {
+            connectWebSocket(report.id, item);
+        }
     });
 }
 
@@ -124,6 +127,28 @@ async function longPollReportStatus(reportId, itemEl) {
 //     };
 //     poll();
 // }
+
+//IRYEOKFIT-024
+const connectedReports = new Set();
+
+function connectWebSocket(reportId, itemEl) {
+    if (connectedReports.has(reportId)) return; // 이미 연결된 report는 스킵
+    connectedReports.add(reportId);
+
+    const socket = new SockJS("/ws/reports");
+    const stompClient = Stomp.over(socket);
+
+    stompClient.connect({}, () => {
+        stompClient.subscribe(`/topic/reports/${reportId}`, (message) => {
+            console.log("WebSocket published 메시지 수신:", message.body);
+            const body = JSON.parse(message.body);
+            if (body.status === "COMPLETED") {
+                itemEl.classList.remove("loading");
+                itemEl.classList.add("completed");
+            }
+        });
+    });
+}
 
 // 피드백 진행 처리
 async function proceedToFeedback() {

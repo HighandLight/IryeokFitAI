@@ -26,6 +26,7 @@ dependencies {
 	runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+	implementation("org.springframework.boot:spring-boot-starter-websocket")
 //	implementation("org.springframework.ai:spring-ai-openai-spring-boot-starter:1.0.0-SNAPSHOT")
 	implementation ("org.springframework.ai:spring-ai-starter-model-openai")
 	implementation (platform("org.springframework.ai:spring-ai-bom:1.0.0-SNAPSHOT"))

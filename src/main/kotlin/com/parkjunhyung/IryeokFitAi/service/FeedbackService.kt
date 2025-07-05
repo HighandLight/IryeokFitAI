@@ -20,6 +20,7 @@ class FeedbackService(
     private val reportRepository: ReportRepository,
     private val feedbackPriorityRepository: FeedbackPriorityRepository,
     private val feedbackCategoryRepository: FeedbackCategoryRepository,
+    private val reportService: ReportService,
     private val openAiChatModel: OpenAiChatModel
 ) {
     private val chatClient = ChatClient.create(openAiChatModel)
@@ -54,6 +55,10 @@ class FeedbackService(
             .trim()
 
         val newFeedbacks = parseFeedbackJson(cleanedResponse, report)
+
+        //상태 변경 + WebSocket 알림 처리
+        reportService.markAsCompleted(report.id)
+
 
         // 피드백 저장 + report 상태 변경
         report.status = ReportStatus.COMPLETED

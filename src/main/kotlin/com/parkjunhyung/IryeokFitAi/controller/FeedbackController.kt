@@ -39,7 +39,7 @@ class FeedbackController (
     fun generateFeedbackForReport(@PathVariable reportId: Long): ResponseEntity<List<FeedbackDto>> {
         val newFeedbacks = feedbackService.generateFeedback(reportId)
 
-        reportService.updateReportStatus(reportId, ReportStatus.COMPLETED) // ReportStatus 변경(IRYEOKFIT-020 이슈)
+//        reportService.updateReportStatus(reportId, ReportStatus.COMPLETED) // ReportStatus 변경(IRYEOKFIT-020 이슈)
 
         val dtoList = newFeedbacks.map { it.toFeedbackDto() }
         return ResponseEntity.ok(dtoList)

@@ -164,7 +164,7 @@ async function proceedToFeedback() {
     const resumeFile = resumeInput.files[0];
     const jobPostingData = window.jobPostingData || {};
 
-    // report 선 생성 (resume 없이 - polling 구현 위함)
+    // report 선 생성 (resume 없이 - 동적 할당)
     let report;
     try {
         const res = await fetchWithAuth("/reports", {
@@ -241,11 +241,13 @@ async function proceedToFeedback() {
         return;
     }
 
-    // 상태 polling 및 시각적 반영
+    // 상태 변경 및 시각적 반영
     const reportItems = document.querySelectorAll(".report-item");
     const newItem = reportItems[0];
     if (newItem) {
         newItem.classList.add("selected");
+        newItem.classList.remove("loading");
+
 
         // pollReportStatus(report.id, newItem);
 

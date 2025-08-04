@@ -8,6 +8,7 @@ import com.parkjunhyung.IryeokFitAi.request.CreateReportRequest
 import com.parkjunhyung.IryeokFitAi.request.UpdateReportRequest
 import com.parkjunhyung.IryeokFitAi.service.ReportService
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -22,8 +23,12 @@ class ReportController(
     }
 
     @GetMapping("/{reportId}")
-    fun getReportById(@PathVariable reportId: Long): ResponseEntity<ReportDto> {
-        val report = reportService.getReportById(reportId)
+    fun getReportById(
+        @PathVariable reportId: Long,
+        @AuthenticationPrincipal principal: org.springframework.security.core.userdetails.User
+
+    ): ResponseEntity<ReportDto> {
+        val report = reportService.getReportByIdWithCheck(reportId, principal.username)
         return ResponseEntity.ok(report.toReportDto())
     }
 

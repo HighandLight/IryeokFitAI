@@ -11,6 +11,7 @@ import io.awspring.cloud.s3.S3Template
 import jakarta.transaction.Transactional
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.security.access.AccessDeniedException
 import org.springframework.stereotype.Service
 import software.amazon.awssdk.utils.StringInputStream
 
@@ -107,6 +108,17 @@ class ReportService(
         reportRepository.save(report)
     }
 
+    fun getReportByIdWithCheck(reportId: Long, userEmail: String): Report {
+        val report = reportRepository.findById(reportId)
+            .orElseThrow { NoSuchElementException("해당 리포트를 찾을 수 없습니다. ID: $reportId") }
+
+        if (report.user.email != userEmail) {
+            throw AccessDeniedException("이 리포트에 접근할 권한이 없습니다.")
+        }
+
+        return report
+    }
+
     @Autowired
     lateinit var reportStatusNotifier: ReportStatusNotifier
 
@@ -116,4 +128,6 @@ class ReportService(
         reportRepository.save(report)
         reportStatusNotifier.notifyStatusCompleted(report.id)
     }
+
+
 }

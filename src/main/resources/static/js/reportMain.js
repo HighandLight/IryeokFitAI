@@ -1,20 +1,7 @@
 let lambdaFunctionUrl = "";
 let reportCache = []; // 전역 캐시 추가
 
-async function fetchLambdaUrl() {
-    try {
-        const response = await fetch("/config/lambda-url");
-        const data = await response.json();
-        if (data.lambdaFunctionUrl) lambdaFunctionUrl = data.lambdaFunctionUrl;
-        else throw new Error("Lambda URL이 비어 있습니다.");
-    } catch (error) {
-        console.error("lambda URL 불러오기 실패:", error);
-    }
-}
-
-document.addEventListener("DOMContentLoaded", async () => {
-    await fetchLambdaUrl();
-    await fetchReports(); // 초기 리포트 목록 로딩
+document.addEventListener("DOMContentLoaded", async () => {await fetchReports(); // 초기 리포트 목록 로딩
     const reportId = getReportIdFromURL();
     if (reportId) {
         fetchResumeImage(reportId);

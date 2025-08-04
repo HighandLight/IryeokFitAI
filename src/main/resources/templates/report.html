@@ -34,8 +34,11 @@
         </div>
     </nav>
 
+    <button class="toggle-sidebar-btn" id="toggleSidebar">☰</button>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
     <div class="main-content">
-        <aside class="sidebar">
+        <aside class="sidebar" id="sidebar">
             <div id="reportList" class="scrollable-list"></div>
         </aside>
 
@@ -55,14 +58,27 @@
 
 <div id="newFeedbackModal" class="modal hidden">
     <div class="modal-content">
-        <img src="/img/iryeokfitMainLogo2.png" alt="IryeokFit Main Logo" class="logo" style="max-width: 120px; margin-bottom: 10px;">
-        <h2>새 피드백 생성</h2>
-        <input type="text" placeholder="🔗 채용 공고 URL 입력" id="jobUrl">
-        <label for="resumeUpload" class="file-label">📄 기존 이력서 업로드 (PDF)</label>
+        <div class="header">
+            <img src="/img/iryeokfitMainLogo2.png" alt="IryeokFit Main Logo" class="logo">
+            <h2>새 피드백 생성</h2>
+        </div>
+
+        <input type="text" placeholder="🔗 채용 공고 URL을 입력해주세요" id="jobUrl">
+
+        <label for="resumeUpload" class="file-label">
+            <span>📄 이력서 업로드</span>
+            <small>PDF 파일만 지원됩니다</small>
+        </label>
         <input type="file" accept="application/pdf" id="resumeUpload" style="display: none;">
-        <br>
-        <button id="analyzeButton">🚀 첨삭 시작</button>
-        <button id="modalCloseButton" class="tertiary" style="margin-top:10px">❌ 닫기</button>
+
+        <button id="analyzeButton">
+            <span>🚀 첨삭 시작</span>
+            <small>AI가 이력서를 분석합니다</small>
+        </button>
+
+        <button id="modalCloseButton" class="tertiary">
+            <span>❌ 닫기</span>
+        </button>
     </div>
 </div>
 

@@ -25,16 +25,28 @@
     </div>
     <strong>이력핏이 처음이시군요?</strong>
     <h3>AI에게 공고별 이력서 피드백 받기</h3>
-    <input type="text" placeholder="🔗 채용 공고 URL 입력" id="jobUrl">
-    <label for="resumeUpload" class="file-label">📄 기존 이력서 업로드 (PDF)</label>
+
+    <div class="input-group">
+        <input type="text" placeholder="🔗 채용 공고 URL 입력" id="jobUrl">
+    </div>
+
+    <label for="resumeUpload" class="file-label">
+        <span>📄 기존 이력서 업로드 (PDF)</span>
+        <small>클릭하여 파일 선택</small>
+    </label>
     <input type="file" accept="application/pdf" id="resumeUpload" style="display: none;">
-    <button id="analyzeButton">🚀 첨삭 시작</button>
+
+    <button id="analyzeButton">
+        <span>🚀 첨삭 시작</span>
+        <small>AI가 당신의 이력서를 분석합니다</small>
+    </button>
 </div>
 
 <div class="modal" id="loadingModal">
     <div class="modal-content">
         <h3>채용 공고 확인중...</h3>
         <div class="loading-spinner"></div>
+        <p>잠시만 기다려주세요</p>
     </div>
 </div>
 
@@ -42,6 +54,7 @@
     <div class="modal-content">
         <h3>해당 공고를 찾을 수 없습니다!</h3>
         <div class="error-icon">❗</div>
+        <p>올바른 채용 공고 URL을 입력해주세요</p>
         <button onclick="closeErrorModal()">닫기</button>
     </div>
 </div>
@@ -50,6 +63,7 @@
     <div class="modal-content">
         <h3>이력서를 업로드해주세요!</h3>
         <div class="error-icon">❗</div>
+        <p>PDF 형식의 이력서 파일을 선택해주세요</p>
         <button onclick="closeFileErrorModal()">닫기</button>
     </div>
 </div>
@@ -58,6 +72,7 @@
     <div class="modal-content">
         <h3>공고 URL을 입력해주세요!</h3>
         <div class="error-icon">❗</div>
+        <p>지원하려는 채용 공고의 URL을 입력해주세요</p>
         <button onclick="closeUrlErrorModal()">닫기</button>
     </div>
 </div>
@@ -65,10 +80,12 @@
 <div class="modal" id="jobModal">
     <div class="modal-content">
         <h3>지원하려는 공고 정보가 맞나요?</h3>
-        <p id="jobTitle"><strong></strong></p>
-        <p id="jobResponsibilities"></p>
-        <p id="jobSkills"></p>
-        <p id="jobRequirements"></p>
+        <div class="job-info">
+            <p id="jobTitle"><strong></strong></p>
+            <p id="jobResponsibilities"></p>
+            <p id="jobSkills"></p>
+            <p id="jobRequirements"></p>
+        </div>
         <button id="proceedButton" onclick="proceedToFeedback()">✅ 네, 진행할게요</button>
         <button onclick="closeModal()">❌ 취소</button>
     </div>

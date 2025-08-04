@@ -1,16 +1,51 @@
 let lambdaFunctionUrl = "";
 let reportCache = []; // 전역 캐시 추가
 
+
+async function fetchLambdaUrl() {
+    try {
+        const response = await fetch("/config/lambda-url");
+        const data = await response.json();
+        if (data.lambdaFunctionUrl) lambdaFunctionUrl = data.lambdaFunctionUrl;
+        else throw new Error("Lambda URL이 비어 있습니다.");
+    } catch (error) {
+        console.error("lambda URL 불러오기 실패:", error);
+    }
+}
+
 document.addEventListener("DOMContentLoaded", async () => {await fetchReports(); // 초기 리포트 목록 로딩
+    await fetchLambdaUrl();
+    await fetchReports(); // 초기 리포트 목록 로딩
     const reportId = getReportIdFromURL();
     if (reportId) {
         fetchResumeImage(reportId);
         fetchFeedbacks(reportId);
     }
 
-    const toggleBtn = document.querySelector(".toggle-sidebar-btn");
-    const sidebar = document.querySelector(".sidebar");
-    toggleBtn?.addEventListener("click", () => sidebar.classList.toggle("active"));
+    const toggleBtn = document.getElementById("toggleSidebar");
+    const sidebar = document.getElementById("sidebar");
+    const overlay = document.getElementById("sidebarOverlay");
+
+    if (toggleBtn && sidebar && overlay) {
+        toggleBtn.addEventListener("click", () => {
+            sidebar.classList.toggle("active");
+            overlay.style.display = sidebar.classList.contains("active") ? "block" : "none";
+        });
+
+        // 오버레이 클릭 시 사이드바 닫기
+        overlay.addEventListener("click", () => {
+            sidebar.classList.remove("active");
+            overlay.style.display = "none";
+        });
+
+        // 사이드바 외부 클릭 시 닫기
+        document.addEventListener("click", (e) => {
+            if (!sidebar.contains(e.target) && !toggleBtn.contains(e.target)) {
+                sidebar.classList.remove("active");
+                overlay.style.display = "none";
+            }
+        });
+    }
 });
 
 function getReportIdFromURL() {
@@ -49,23 +84,44 @@ function renderReportList(reports) {
     reports.forEach((report) => {
         const item = document.createElement("div");
         item.classList.add("report-item");
-        item.textContent = report.title;
 
-        if (report.status === "WAITING") item.classList.add("loading");
-        else if (report.status === "COMPLETED") item.classList.add("completed");
+        // 제목을 안전하게 처리하고 중복 제거
+        const title = report.title || "제목 없음";
+        const cleanTitle = title.replace(/\s+/g, ' ').trim(); // 연속된 공백 제거
+
+        // 상태에 따른 아이콘 추가
+        const statusIcon = report.status === "WAITING" ? "⏳" :
+            report.status === "COMPLETED" ? "✅" : "📄";
+
+        item.innerHTML = `
+            <div class="report-item-content">
+                <span class="report-status-icon">${statusIcon}</span>
+                <span class="report-title">${cleanTitle}</span>
+            </div>
+        `;
+
+        if (report.status === "WAITING") {
+            item.classList.add("loading");
+            item.style.cursor = "not-allowed";
+        } else if (report.status === "COMPLETED") {
+            item.classList.add("completed");
+        }
 
         item.addEventListener("click", () => {
+            // WAITING 상태인 경우 클릭을 막음
+            if (report.status === "WAITING") {
+                return;
+            }
+
             document.querySelectorAll('.report-item').forEach(i => i.classList.remove("selected"));
             item.classList.remove("completed", "loading");
             item.classList.add("selected");
-            onReportClick(report.id); // 읽음 처리 - status COMPLETED -> SAVED 로 바꾼 후 배경 색 제거
+            onReportClick(report.id);
             window.location.href = `/report?reportId=${report.id}`;
         });
 
         container.appendChild(item);
 
-        // if (report.status === "WAITING") pollReportStatus(report.id, item);
-        // if (report.status === "WAITING") longPollReportStatus(report.id, item);
         if (report.status === "WAITING") {
             connectWebSocket(report.id, item);
         }
@@ -132,6 +188,15 @@ function connectWebSocket(reportId, itemEl) {
             if (body.status === "COMPLETED") {
                 itemEl.classList.remove("loading");
                 itemEl.classList.add("completed");
+                itemEl.style.cursor = "pointer";
+                itemEl.style.opacity = "1";
+                itemEl.style.pointerEvents = "auto";
+
+                // 캐시의 상태도 업데이트
+                const reportIndex = reportCache.findIndex(r => r.id === reportId);
+                if (reportIndex !== -1) {
+                    reportCache[reportIndex].status = "COMPLETED";
+                }
             }
         });
     });
@@ -163,6 +228,7 @@ async function proceedToFeedback() {
             }),
         });
         report = await res.json();
+        report.status = "WAITING"; // 상태를 WAITING으로 설정
         reportCache.unshift(report);
         renderReportList(reportCache);
     } catch (e) {
@@ -209,6 +275,7 @@ async function proceedToFeedback() {
 
         //캐시 내 report 내용 갱신 및 다시 렌더링 -> ((TTT-1) 문구 변경하도록)
         Object.assign(report, updateData);
+        report.status = "WAITING"; // 상태를 WAITING으로 유지
         renderReportList(reportCache);
     } catch (e) {
         console.error("report 업데이트 실패", e);
@@ -234,11 +301,12 @@ async function proceedToFeedback() {
     if (newItem) {
         newItem.classList.add("selected");
         newItem.classList.remove("loading");
+        newItem.style.cursor = "pointer";
+        newItem.style.opacity = "1";
+        newItem.style.pointerEvents = "auto";
 
-
-        // pollReportStatus(report.id, newItem);
-
-        // longPollReportStatus(report.id, newItem);
+        // WebSocket 연결로 상태 모니터링
+        connectWebSocket(report.id, newItem);
     }
 }
 
@@ -285,16 +353,27 @@ function renderFeedbackList(feedbacks) {
     feedbacks.forEach((f) => {
         const item = document.createElement("div");
         item.classList.add("feedback-item", getPriorityClass(f.priority));
+
+        // 텍스트 내용을 안전하게 처리
+        const suggestionText = f.suggestionText || "";
+        const detailText = f.detailText || "";
+
         item.innerHTML = `
-            <strong>${getPriorityEmoji(f.priority)} [${f.priority}] ${f.suggestionText}</strong>
+            <div class="feedback-header">
+                <strong>${getPriorityEmoji(f.priority)} [${f.priority.toUpperCase()}]</strong>
+                <div class="feedback-suggestion">${suggestionText}</div>
+            </div>
             <button class="toggle-detail">자세히 보기 ▾</button>
-            <div class="feedback-detail hidden">${f.detailText}</div>
+            <div class="feedback-detail hidden">${detailText}</div>
         `;
+
         item.querySelector(".toggle-detail").addEventListener("click", () => {
             const detail = item.querySelector(".feedback-detail");
+            const button = item.querySelector(".toggle-detail");
             const hidden = detail.classList.toggle("hidden");
-            item.querySelector(".toggle-detail").textContent = hidden ? "자세히 보기 ▾" : "간략히 보기 ▴";
+            button.textContent = hidden ? "자세히 보기 ▾" : "간략히 보기 ▴";
         });
+
         container.appendChild(item);
     });
 }

@@ -8,6 +8,7 @@ import com.parkjunhyung.IryeokFitAi.repository.entity.Feedback
 import com.parkjunhyung.IryeokFitAi.service.FeedbackService
 import com.parkjunhyung.IryeokFitAi.service.ReportService
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -18,14 +19,22 @@ class FeedbackController (
 
 ) {
     @GetMapping("/{reportId}")
-    fun getFeedbacksByReportId(@PathVariable reportId: Long): ResponseEntity<List<FeedbackDto>> {
+    fun getFeedbacksByReportId(
+        @PathVariable reportId: Long,
+        @AuthenticationPrincipal principal: org.springframework.security.core.userdetails.User
+    ): ResponseEntity<List<FeedbackDto>> {
+        reportService.getReportByIdWithCheck(reportId, principal.username)
         val feedbacks = feedbackService.getFeedbackByReport(reportId)
             .map { it.toFeedbackDto() }
         return ResponseEntity.ok(feedbacks)
     }
 
     @GetMapping("/report/{reportId}")
-    fun getFeedbackByReport(@PathVariable reportId: Long): ResponseEntity<List<Feedback>> {
+    fun getFeedbackByReport(
+        @PathVariable reportId: Long,
+        @AuthenticationPrincipal principal: org.springframework.security.core.userdetails.User
+    ): ResponseEntity<List<Feedback>> {
+        reportService.getReportByIdWithCheck(reportId, principal.username)
         return ResponseEntity.ok(feedbackService.getFeedbackByReport(reportId))
     }
 
@@ -36,7 +45,11 @@ class FeedbackController (
     }
 
     @PostMapping("/generate/{reportId}")
-    fun generateFeedbackForReport(@PathVariable reportId: Long): ResponseEntity<List<FeedbackDto>> {
+    fun generateFeedbackForReport(
+        @PathVariable reportId: Long,
+        @AuthenticationPrincipal principal: org.springframework.security.core.userdetails.User
+    ): ResponseEntity<List<FeedbackDto>> {
+        reportService.getReportByIdWithCheck(reportId, principal.username)
         val newFeedbacks = feedbackService.generateFeedback(reportId)
 
 //        reportService.updateReportStatus(reportId, ReportStatus.COMPLETED) // ReportStatus 변경(IRYEOKFIT-020 이슈)

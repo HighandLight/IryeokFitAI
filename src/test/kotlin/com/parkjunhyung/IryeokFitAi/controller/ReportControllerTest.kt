@@ -6,7 +6,9 @@ import com.ninjasquad.springmockk.MockkBean
 import com.parkjunhyung.IryeokFitAi.repository.entity.ENUM.ReportStatus
 import com.parkjunhyung.IryeokFitAi.repository.entity.Report
 import com.parkjunhyung.IryeokFitAi.request.CreateReportRequest
+import com.parkjunhyung.IryeokFitAi.service.CustomUserDetailsService
 import com.parkjunhyung.IryeokFitAi.service.ReportService
+import com.parkjunhyung.IryeokFitAi.util.JwtUtil
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -15,6 +17,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.http.MediaType
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
@@ -33,6 +36,12 @@ class ReportControllerTest {
 
     @MockkBean
     private lateinit var reportService: ReportService
+
+    @MockkBean
+    lateinit var jwtUtil: JwtUtil
+
+    @MockkBean
+    lateinit var customUserDetailsService: CustomUserDetailsService
 
     private val objectMapper = ObjectMapper().registerModule(JavaTimeModule())
 
@@ -58,7 +67,8 @@ class ReportControllerTest {
         every { reportService.createReport(any()) } returns report
 
         mockMvc.perform(
-            post("/reports")
+            post("/reports").with(user("test@example.com"))
+                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(createRequest))
         )
@@ -81,15 +91,17 @@ class ReportControllerTest {
             createdAt = LocalDateTime.now()
         )
 
-        every { reportService.getReportById(1L) } returns report
+        every { reportService.getReportByIdWithCheck(1L, "test@example.com") } returns report
 
         mockMvc.perform(
-            get("/reports/1")
+            get("/reports/1").with(user("test@example.com"))
+                .with(csrf())
         )
+
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.title").value("테스트 Report"))
 
-        verify { reportService.getReportById(1L) }
+        verify { reportService.getReportByIdWithCheck(1L, "test@example.com") }
     }
 
     @Test
@@ -115,53 +127,57 @@ class ReportControllerTest {
             )
         )
 
-        every { reportService.getReportByUser(1L) } returns reportList
+        every { reportService.getReportByUser(1L, "test@example.com") } returns reportList
 
         mockMvc.perform(
-            get("/reports/user/1")
+            get("/reports/user/1").with(user("test@example.com"))
+                .with(csrf())
         )
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.size()").value(2))
             .andExpect(jsonPath("$[0].title").value("1번 리포트"))
             .andExpect(jsonPath("$[1].title").value("2번 리포트"))
 
-        verify { reportService.getReportByUser(1L) }
+        verify { reportService.getReportByUser(1L, "test@example.com") }
     }
 
     @Test
     fun `updateReportStatus() should update report status`() {
-        every { reportService.updateReportStatus(1L, ReportStatus.SAVED) } returns Unit
+        every { reportService.updateReportStatus(1L, ReportStatus.SAVED, "test@example.com") } returns Unit
 
         mockMvc.perform(
-            patch("/reports/1/status")
+            patch("/reports/1/status").with(user("test@example.com"))
                 .param("status", "SAVED")
+                .with(csrf())
         )
             .andExpect(status().isNoContent)
 
-        verify { reportService.updateReportStatus(1L, ReportStatus.SAVED) }
+        verify { reportService.updateReportStatus(1L, ReportStatus.SAVED, "test@example.com") }
     }
 
     @Test
     fun `deleteReport() should soft delete report`() {
-        every { reportService.deleteReport(1L) } returns Unit
+        every { reportService.deleteReport(1L, "test@example.com") } returns Unit
 
         mockMvc.perform(
-            delete("/reports/1")
+            delete("/reports/1").with(user("test@example.com"))
+                .with(csrf())
         )
             .andExpect(status().isNoContent)
 
-        verify { reportService.deleteReport(1L) }
+        verify { reportService.deleteReport(1L, "test@example.com") }
     }
 
     @Test
     fun `getReportById() should return 404 when report not found`() {
-        every { reportService.getReportById(1L) } throws IllegalArgumentException("Report not found: 1")
+        every { reportService.getReportByIdWithCheck(1L, "test@example.com") } throws IllegalArgumentException("Report not found: 1")
 
         mockMvc.perform(
-            get("/reports/1")
+            get("/reports/1").with(user("test@example.com"))
+                .with(csrf())
         )
-            .andExpect(status().isNotFound)
+            .andExpect(status().isBadRequest)
 
-        verify { reportService.getReportById(1L) }
+        verify { reportService.getReportByIdWithCheck(1L, "test@example.com") }
     }
 }

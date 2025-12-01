@@ -9,6 +9,7 @@ import com.parkjunhyung.IryeokFitAi.service.ReportService
 import com.parkjunhyung.IryeokFitAi.service.ResumeService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 
@@ -26,8 +27,11 @@ class ResumeController(
     }
 
     @GetMapping("/images/{reportId}")
-    fun getResumeImageByReportId(@PathVariable reportId: Long): ResponseEntity<Map<String, String?>> {
-        val report = reportService.getReportById(reportId)
+    fun getResumeImageByReportId(
+        @PathVariable reportId: Long,
+        @AuthenticationPrincipal principal: org.springframework.security.core.userdetails.User
+    ): ResponseEntity<Map<String, String?>> {
+        val report = reportService.getReportByIdWithCheck(reportId, principal.username)
 
         val resume = report.resume
             ?: throw IllegalArgumentException("해당 리포트에 연결된 이력서가 없습니다.")

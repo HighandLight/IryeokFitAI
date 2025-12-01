@@ -33,41 +33,58 @@ class ReportController(
     }
 
     @GetMapping("/{reportId}/mark-as-read")
-    fun markAsRead(@PathVariable reportId: Long): ResponseEntity<Void> {
-        reportService.markAsRead(reportId)
+    fun markAsRead(
+        @PathVariable reportId: Long,
+        @AuthenticationPrincipal principal: org.springframework.security.core.userdetails.User
+    ): ResponseEntity<Void> {
+        reportService.markAsRead(reportId, principal.username)
         return ResponseEntity.ok().build()
     }
 
     @GetMapping("/{reportId}/wait-complete")
-    fun waitUntilComplete(@PathVariable reportId: Long): ResponseEntity<ReportDto> {
-        val report = reportService.waitUntilCompleted(reportId)
+    fun waitUntilComplete(
+        @PathVariable reportId: Long,
+        @AuthenticationPrincipal principal: org.springframework.security.core.userdetails.User
+    ): ResponseEntity<ReportDto> {
+        val report = reportService.waitUntilCompleted(reportId, principal.username)
         return ResponseEntity.ok(report.toReportDto())
     }
 
     @GetMapping("/user/{userId}")
-    fun getReportsByUser(@PathVariable userId: Long): ResponseEntity<List<ReportDto>> {
-        val reports = reportService.getReportByUser(userId).map { it.toReportDto() }
+    fun getReportsByUser(
+        @PathVariable userId: Long,
+        @AuthenticationPrincipal principal: org.springframework.security.core.userdetails.User
+    ): ResponseEntity<List<ReportDto>> {
+        val reports = reportService.getReportByUser(userId, principal.username).map { it.toReportDto() }
         return ResponseEntity.ok(reports)
     }
 
     @PatchMapping("/{reportId}/status")
-    fun updateReportStatus(@PathVariable reportId: Long, @RequestParam status: ReportStatus): ResponseEntity<Void> {
-        reportService.updateReportStatus(reportId, status)
+    fun updateReportStatus(
+        @PathVariable reportId: Long,
+        @RequestParam status: ReportStatus,
+        @AuthenticationPrincipal principal: org.springframework.security.core.userdetails.User
+    ): ResponseEntity<Void> {
+        reportService.updateReportStatus(reportId, status, principal.username)
         return ResponseEntity.noContent().build()
     }
 
     @PatchMapping("/{reportId}")
     fun updateReport(
         @PathVariable reportId: Long,
-        @RequestBody request: UpdateReportRequest
+        @RequestBody request: UpdateReportRequest,
+        @AuthenticationPrincipal principal: org.springframework.security.core.userdetails.User
     ): ResponseEntity<ReportDto> {
-        val updated = reportService.updateReport(reportId, request)
+        val updated = reportService.updateReport(reportId, request, principal.username)
         return ResponseEntity.ok(updated.toReportDto())
     }
 
     @DeleteMapping("/{reportId}")
-    fun deleteReport(@PathVariable reportId: Long): ResponseEntity<Void> {
-        reportService.deleteReport(reportId)
+    fun deleteReport(
+        @PathVariable reportId: Long,
+        @AuthenticationPrincipal principal: org.springframework.security.core.userdetails.User
+    ): ResponseEntity<Void> {
+        reportService.deleteReport(reportId, principal.username)
         return ResponseEntity.noContent().build()
     }
 }

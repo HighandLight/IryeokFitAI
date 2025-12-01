@@ -40,7 +40,14 @@ class ReportService(
             .orElseThrow { throw IllegalArgumentException("report 없음: report_id : $reportId") }
     }
 
-    fun getReportByUser(userId: Long): List<Report> {
+    fun getReportByUser(userId: Long, userEmail: String): List<Report> {
+        val user = userRepository.findByEmail(userEmail)
+            ?: throw AccessDeniedException("사용자 정보를 찾을 수 없습니다.")
+
+        if (user.id != userId) {
+            throw AccessDeniedException("다른 사용자의 리포트 목록에는 접근할 수 없습니다.")
+        }
+
         return reportRepository.findByUserId(userId)
             .filter { it.status != ReportStatus.DELETED }
             .sortedByDescending { it.id } // 최신 report 순으로 오도록(내림차순)
@@ -48,17 +55,15 @@ class ReportService(
 
 
     @Transactional
-    fun updateReportStatus(reportId: Long, status: ReportStatus) {
-        val report = reportRepository.findById(reportId)
-            .orElseThrow{ throw IllegalArgumentException("report 없음: report_id : $reportId")}
+    fun updateReportStatus(reportId: Long, status: ReportStatus, userEmail: String) {
+        val report = getReportByIdWithCheck(reportId, userEmail)
         report.status = status
         reportRepository.save(report)
     }
 
     @Transactional
-    fun updateReport(reportId: Long, req: UpdateReportRequest): Report {
-        val report = reportRepository.findById(reportId) // polling - report 값 업데이트
-            .orElseThrow { IllegalArgumentException("Report not found") }
+    fun updateReport(reportId: Long, req: UpdateReportRequest, userEmail: String): Report {
+        val report = getReportByIdWithCheck(reportId, userEmail)
 
         req.title?.let { report.title = it }
         req.jobPostingUrl?.let { report.jobPostingUrl = it }
@@ -79,15 +84,16 @@ class ReportService(
     }
 
     @Transactional
-    fun markAsRead(reportId: Long) { // 피드백 생성 완료 후, 유저가 확인(열람)한 report 구분하기 위함(UX)
-        val report = reportRepository.findById(reportId).orElseThrow()
+    fun markAsRead(reportId: Long, userEmail: String) { // 피드백 생성 완료 후, 유저가 확인(열람)한 report 구분하기 위함(UX)
+        val report = getReportByIdWithCheck(reportId, userEmail)
         if (report.status == ReportStatus.COMPLETED) {
             report.status = ReportStatus.SAVED
             reportRepository.save(report)
         }
     }
     @Transactional
-    fun waitUntilCompleted(reportId: Long, timeoutMs: Long = 30_000, intervalMs: Long = 2000): Report {
+    fun waitUntilCompleted(reportId: Long, userEmail: String, timeoutMs: Long = 30_000, intervalMs: Long = 2000): Report {
+        getReportByIdWithCheck(reportId, userEmail)
         val start = System.currentTimeMillis()
 
         while (System.currentTimeMillis() - start < timeoutMs) {
@@ -101,9 +107,8 @@ class ReportService(
         return getReportById(reportId) // timeout 후에도 미완료면 현재 상태 반환
     }
     @Transactional
-    fun deleteReport(reportId: Long) {
-        val report = reportRepository.findById(reportId)
-            .orElseThrow {IllegalArgumentException("report 없음: report_id : $reportId") }
+    fun deleteReport(reportId: Long, userEmail: String) {
+        val report = getReportByIdWithCheck(reportId, userEmail)
         report.status = ReportStatus.DELETED
         reportRepository.save(report)
     }

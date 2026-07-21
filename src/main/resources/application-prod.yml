@@ -36,3 +36,6 @@ spring:
 
   jwt:
     secret: ${SPRING_JWT_SECRET}
+
+app:
+  frontend-origins: ${FRONTEND_ORIGINS}

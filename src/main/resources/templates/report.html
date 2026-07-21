@@ -10,11 +10,9 @@
     <script src="/js/modalHandler.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
     <link rel="stylesheet" href="/css/reportStyle.css" />
     <link rel="stylesheet" href="/css/modalStyle.css" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Jersey+15&display=swap" rel="stylesheet" />
 </head>
 
 <body>
@@ -47,7 +45,7 @@
 
             <div class="resume-section">
                 <div id="resumeContainer" class="resume-box">
-                    <h3>📂 기존 이력서</h3>
+                    <h3>기존 이력서</h3>
                     <img id="resumeImage" src="" alt="이력서 미리보기" />
                 </div>
                 <div id="feedbackSection" class="feedback-section scrollable-list"></div>
@@ -63,21 +61,21 @@
             <h2>새 피드백 생성</h2>
         </div>
 
-        <input type="text" placeholder="🔗 채용 공고 URL을 입력해주세요" id="jobUrl">
+        <input type="text" placeholder="채용 공고 URL을 입력해주세요" id="jobUrl">
 
         <label for="resumeUpload" class="file-label">
-            <span>📄 이력서 업로드</span>
+            <span>이력서 업로드</span>
             <small>PDF 파일만 지원됩니다</small>
         </label>
         <input type="file" accept="application/pdf" id="resumeUpload" style="display: none;">
 
         <button id="analyzeButton">
-            <span>🚀 첨삭 시작</span>
+            <span>첨삭 시작</span>
             <small>AI가 이력서를 분석합니다</small>
         </button>
 
         <button id="modalCloseButton" class="tertiary">
-            <span>❌ 닫기</span>
+            <span>닫기</span>
         </button>
     </div>
 </div>
@@ -93,7 +91,7 @@
 <div class="modal hidden" id="errorModal">
     <div class="modal-content">
         <h3>해당 공고를 찾을 수 없습니다!</h3>
-        <div class="error-icon">❗</div>
+        <div class="error-icon">!</div>
         <button onclick="closeErrorModal()">닫기</button>
     </div>
 </div>
@@ -101,7 +99,7 @@
 <div class="modal hidden" id="fileErrorModal">
     <div class="modal-content">
         <h3>이력서를 업로드해주세요!</h3>
-        <div class="error-icon">❗</div>
+        <div class="error-icon">!</div>
         <button onclick="closeFileErrorModal()">닫기</button>
     </div>
 </div>
@@ -109,7 +107,7 @@
 <div class="modal hidden" id="urlErrorModal">
     <div class="modal-content">
         <h3>공고 URL을 입력해주세요!</h3>
-        <div class="error-icon">❗</div>
+        <div class="error-icon">!</div>
         <button onclick="closeUrlErrorModal()">닫기</button>
     </div>
 </div>
@@ -121,8 +119,8 @@
         <p id="jobResponsibilities"></p>
         <p id="jobSkills"></p>
         <p id="jobRequirements"></p>
-        <button id="proceedButton">✅ 네, 진행할게요</button>
-        <button onclick="closeModal()">❌ 취소</button>
+        <button id="proceedButton">네, 진행할게요</button>
+        <button class="secondary" onclick="closeModal()">취소</button>
     </div>
 </div>
 

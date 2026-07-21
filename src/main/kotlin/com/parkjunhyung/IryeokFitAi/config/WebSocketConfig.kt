@@ -1,5 +1,6 @@
 package com.parkjunhyung.IryeokFitAi.config
 
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Configuration
 import org.springframework.messaging.simp.config.MessageBrokerRegistry
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker
@@ -9,14 +10,20 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @Configuration
 @EnableWebSocketMessageBroker
 class WebSocketConfig : WebSocketMessageBrokerConfigurer {
+
+    @Value("\${app.frontend-origins}")
+    private lateinit var frontendOrigins: String
+
     override fun configureMessageBroker(config: MessageBrokerRegistry) {
         config.enableSimpleBroker("/topic") // 메시지 구독 prefix
         config.setApplicationDestinationPrefixes("/app") // 메시지 전송 prefix
     }
 
     override fun registerStompEndpoints(registry: StompEndpointRegistry) {
+        val allowedOrigins = (frontendOrigins.split(",").map { it.trim() } +
+            listOf("https://iryeokfit.parkjunhyung.com", "http://localhost:8080")).toTypedArray()
         registry.addEndpoint("/ws/reports")
-            .setAllowedOriginPatterns("https://iryeokfit.parkjunhyung.com", "http://localhost:8080")
+            .setAllowedOriginPatterns(*allowedOrigins)
             .withSockJS()
     }
 }

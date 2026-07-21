@@ -145,7 +145,7 @@ async function proceedToFeedback() {
         uploadedResume = await uploadResponse.json();
     } catch (error) {
         console.error("이력서 업로드 실패:", error);
-        proceedButton.innerHTML = "✅ 네, 진행할게요";
+        proceedButton.innerHTML = "네, 진행할게요";
         proceedButton.disabled = false;
         return;
     }
@@ -173,7 +173,7 @@ async function proceedToFeedback() {
         report = await reportResponse.json();
     } catch (error) {
         console.error("리포트 생성 실패:", error);
-        proceedButton.innerHTML = "✅ 네, 진행할게요";
+        proceedButton.innerHTML = "네, 진행할게요";
         proceedButton.disabled = false;
         return;
     }
@@ -185,13 +185,13 @@ async function proceedToFeedback() {
 
         if (!feedbackResponse.ok) {
             console.error("피드백 생성 실패");
-            proceedButton.innerHTML = "✅ 네, 진행할게요";
+            proceedButton.innerHTML = "네, 진행할게요";
             proceedButton.disabled = false;
             return;
         }
     } catch (error) {
         console.error("피드백 생성 요청 오류:", error);
-        proceedButton.innerHTML = "✅ 네, 진행할게요";
+        proceedButton.innerHTML = "네, 진행할게요";
         proceedButton.disabled = false;
         return;
     }

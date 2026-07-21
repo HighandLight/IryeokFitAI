@@ -1,5 +1,6 @@
 let lambdaFunctionUrl = "";
 let reportCache = []; // 전역 캐시 추가
+let menuClickHandlerInitialized = false; // 메뉴 외부 클릭 초기화flag
 
 
 async function fetchLambdaUrl() {
@@ -89,25 +90,100 @@ function renderReportList(reports) {
         const title = report.title || "제목 없음";
         const cleanTitle = title.replace(/\s+/g, ' ').trim(); // 연속된 공백 제거
 
-        // 상태에 따른 아이콘 추가
-        const statusIcon = report.status === "WAITING" ? "⏳" :
-            report.status === "COMPLETED" ? "✅" : "📄";
-
         item.innerHTML = `
             <div class="report-item-content">
-                <span class="report-status-icon">${statusIcon}</span>
+                <span class="report-status-icon"></span>
                 <span class="report-title">${cleanTitle}</span>
+            </div>
+            <button class="report-menu-btn" data-report-id="${report.id}" type="button">
+                <span class="menu-icon">&#8942;</span>
+            </button>
+            <div class="report-menu-dropdown hidden" data-report-id="${report.id}">
+                <button class="menu-item edit-item" data-report-id="${report.id}" type="button">
+                    <span class="menu-item-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg></span>
+                    <span class="menu-item-text">제목 수정</span>
+                </button>
+                <button class="menu-item delete-item" data-report-id="${report.id}" type="button">
+                    <span class="menu-item-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6"/></svg></span>
+                    <span class="menu-item-text">삭제</span>
+                </button>
             </div>
         `;
 
         if (report.status === "WAITING") {
             item.classList.add("loading");
             item.style.cursor = "not-allowed";
+            // WAITING 상태일 때 메뉴 버튼 숨기기
+            const menuBtn = item.querySelector(".report-menu-btn");
+            if (menuBtn) {
+                menuBtn.style.display = "none";
+            }
         } else if (report.status === "COMPLETED") {
             item.classList.add("completed");
         }
 
-        item.addEventListener("click", () => {
+        // 메뉴 버튼과 드롭다운 참조
+        const menuBtn = item.querySelector(".report-menu-btn");
+        const menuDropdown = item.querySelector(".report-menu-dropdown");
+
+        // 메뉴 버튼 클릭 이벤트
+        if (menuBtn && menuDropdown) {
+            menuBtn.addEventListener("click", (e) => {
+                e.stopPropagation(); // report-item 클릭 이벤트 방지
+
+                // 다른 메뉴 닫기
+                document.querySelectorAll(".report-menu-dropdown").forEach(menu => {
+                    if (menu !== menuDropdown && !menu.classList.contains("hidden")) {
+                        menu.classList.add("hidden");
+                        // 다른 항목의 menu-open 클래스 제거
+                        const otherItem = menu.closest(".report-item");
+                        if (otherItem) {
+                            otherItem.classList.remove("menu-open");
+                        }
+                    }
+                });
+
+                // 현재 메뉴 토글
+                const isHidden = menuDropdown.classList.toggle("hidden");
+                if (isHidden) {
+                    item.classList.remove("menu-open");
+                } else {
+                    item.classList.add("menu-open");
+                }
+            });
+
+            // 메뉴 아이템 클릭 이벤트 (기능은 나중에 구현)
+            const editBtn = item.querySelector(".edit-item");
+            const deleteBtn = item.querySelector(".delete-item");
+
+            if (editBtn) {
+                editBtn.addEventListener("click", (e) => {
+                    e.stopPropagation();
+                    menuDropdown.classList.add("hidden");
+                    item.classList.remove("menu-open");
+                    // TODO: 제목 수정 기능 구현
+                    console.log("제목 수정:", report.id);
+                });
+            }
+
+            if (deleteBtn) {
+                deleteBtn.addEventListener("click", (e) => {
+                    e.stopPropagation();
+                    menuDropdown.classList.add("hidden");
+                    item.classList.remove("menu-open");
+                    // TODO: 삭제 기능 구현
+                    console.log("삭제:", report.id);
+                });
+            }
+        }
+
+        // report-item 클릭 이벤트
+        item.addEventListener("click", (e) => {
+            // 메뉴 관련 요소 클릭 시 무시
+            if (e.target.closest(".report-menu-btn") || e.target.closest(".report-menu-dropdown")) {
+                return;
+            }
+
             // WAITING 상태인 경우 클릭을 막음
             if (report.status === "WAITING") {
                 return;
@@ -126,6 +202,22 @@ function renderReportList(reports) {
             connectWebSocket(report.id, item);
         }
     });
+
+    // 외부 클릭 시 모든 메뉴 닫기 (한 번만 초기화)
+    if (!menuClickHandlerInitialized) {
+        document.addEventListener("click", (e) => {
+            if (!e.target.closest(".report-item")) {
+                document.querySelectorAll(".report-menu-dropdown").forEach(menu => {
+                    menu.classList.add("hidden");
+                    const item = menu.closest(".report-item");
+                    if (item) {
+                        item.classList.remove("menu-open");
+                    }
+                });
+            }
+        });
+        menuClickHandlerInitialized = true;
+    }
 }
 
 const pollingSet = new Set(); // 중복 방지를 위한 Set
@@ -360,7 +452,7 @@ function renderFeedbackList(feedbacks) {
 
         item.innerHTML = `
             <div class="feedback-header">
-                <strong>${getPriorityEmoji(f.priority)} [${f.priority.toUpperCase()}]</strong>
+                <strong><span class="priority-dot"></span>${f.priority.toUpperCase()}</strong>
                 <div class="feedback-suggestion">${suggestionText}</div>
             </div>
             <button class="toggle-detail">자세히 보기 ▾</button>
@@ -384,15 +476,6 @@ function getPriorityClass(priority) {
         case "medium": return "medium";
         case "low": return "low";
         default: return "";
-    }
-}
-
-function getPriorityEmoji(priority) {
-    switch (priority.toLowerCase()) {
-        case "high": return "🔴";
-        case "medium": return "🟡";
-        case "low": return "🟢";
-        default: return "⚪";
     }
 }
 

@@ -3,6 +3,7 @@ package com.parkjunhyung.IryeokFitAi.domain.resume.service
 import com.parkjunhyung.IryeokFitAi.domain.resume.repository.ResumeRepository
 import com.parkjunhyung.IryeokFitAi.domain.user.repository.UserRepository
 import com.parkjunhyung.IryeokFitAi.domain.resume.entity.Resume
+import com.parkjunhyung.IryeokFitAi.domain.resume.entity.ResumeImage
 import com.parkjunhyung.IryeokFitAi.domain.resume.entity.ENUM.ResumeStatus
 import com.parkjunhyung.IryeokFitAi.domain.resume.dto.CreateResumeRequest
 import com.parkjunhyung.IryeokFitAi.domain.resume.dto.toResume
@@ -49,10 +50,12 @@ fun uploadResume(userId: Long, file: MultipartFile): Resume {
         val resume = Resume(
             user = user,
             originalFilePath = pdfUrl,
-            convertedImagePath = imageUrls.firstOrNull(),
             resumeText = extractedText,
             status = ResumeStatus.UPLOADED
         )
+        imageUrls.forEachIndexed { index, url ->
+            resume.images.add(ResumeImage(resume = resume, pageNumber = index + 1, imageUrl = url))
+        }
 
         return resumeRepository.save(resume)
     }

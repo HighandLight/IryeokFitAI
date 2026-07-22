@@ -18,15 +18,15 @@ class Resume (
     @Column(name = "original_file_path", nullable = false)
     val originalFilePath: String,
 
-    @Column(name = "converted_image_path")
-    val convertedImagePath: String? = null,
-
     @Column(name = "resume_text", columnDefinition = "TEXT")
     var resumeText: String? = null,
 
     @Column(name = "status", nullable = false)
     @Enumerated(EnumType.STRING)
-    var status: ResumeStatus
+    var status: ResumeStatus,
+
+    @OneToMany(mappedBy = "resume", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
+    val images: MutableList<ResumeImage> = mutableListOf()
 ) {
     fun markAsDeleted() {
         this.status = ResumeStatus.DELETED

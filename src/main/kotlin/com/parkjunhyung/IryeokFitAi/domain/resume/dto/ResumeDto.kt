@@ -7,7 +7,7 @@ data class ResumeDto(
     val id: Long,
     val userId: Long,
     val originalFilePath: String,
-    val convertedImagePath: String?,
+    val imageUrls: List<String>,
     val resumeText: String?,
     val status: ResumeStatus
 )
@@ -16,7 +16,7 @@ fun Resume.toResumeDto() = ResumeDto(
     id = id,
     userId = user.id,
     originalFilePath = originalFilePath,
-    convertedImagePath = convertedImagePath,
+    imageUrls = images.sortedBy { it.pageNumber }.map { it.imageUrl },
     resumeText = resumeText,
     status = status
 )

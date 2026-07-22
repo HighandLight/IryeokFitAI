@@ -29,14 +29,13 @@ class ResumeController(
     fun getResumeImageByReportId(
         @PathVariable reportId: Long,
         @AuthenticationPrincipal principal: User
-    ): ResponseEntity<Map<String, String?>> {
+    ): ResponseEntity<Map<String, List<String>>> {
         val report = reportService.getReportByIdWithCheck(reportId, principal.username)
 
         val resume = report.resume
             ?: throw IllegalArgumentException("해당 리포트에 연결된 이력서가 없습니다.")
-        val resumeId = resume.id
-        val convertedUrl = resume.convertedImagePath
-        val response = mapOf("convertedImageUrl" to convertedUrl)
+        val imageUrls = resume.images.sortedBy { it.pageNumber }.map { it.imageUrl }
+        val response = mapOf("imageUrls" to imageUrls)
         return ResponseEntity.ok(response)
     }
 
@@ -69,7 +68,8 @@ class ResumeController(
             // ex, 존재하지 않는 사용자 ID
             ResponseEntity.status(HttpStatus.NOT_FOUND).build()
         } catch (e: Exception) {
-            // 예기치 않은 서버 오류?
+            // 예기치 않은 서버 오류(S3 업로드 실패 등) - 원인 파악을 위해 반드시 로그 남기기
+            e.printStackTrace()
             ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
         }
     }

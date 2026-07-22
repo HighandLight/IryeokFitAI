@@ -9,6 +9,16 @@ import java.time.LocalDateTime
 @RestControllerAdvice
 class GlobalExceptionHandler {
 
+    @ExceptionHandler(CustomException::class)
+    fun handleCustomException(e: CustomException): ResponseEntity<ErrorResponse> {
+        return ResponseEntity.status(e.errorCode.status)
+            .body(ErrorResponse(
+                status = e.errorCode.status.value(),
+                message = e.message ?: e.errorCode.message,
+                timestamp = LocalDateTime.now()
+            ))
+    }
+
     @ExceptionHandler(IllegalArgumentException::class)
     fun handleIllegalArgumentException(e: IllegalArgumentException): ResponseEntity<ErrorResponse> {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)

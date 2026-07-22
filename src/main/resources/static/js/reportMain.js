@@ -416,16 +416,22 @@ async function fetchResumeImage(reportId) {
     try {
         const res = await fetchWithAuth(`/resumes/images/${reportId}`);
         const data = await res.json();
-        displayResumeImage(data.convertedImageUrl);
+        displayResumeImages(data.imageUrls);
     } catch (e) {
         console.error("이력서 이미지 오류:", e);
     }
 }
 
-function displayResumeImage(url) {
-    const img = document.getElementById("resumeImage");
-    img.src = url;
-    img.alt = "변환된 이력서";
+function displayResumeImages(urls) {
+    const container = document.getElementById("resumeImageList");
+    container.innerHTML = "";
+    (urls || []).forEach((url) => {
+        const img = document.createElement("img");
+        img.className = "resumeImage";
+        img.src = url;
+        img.alt = "변환된 이력서";
+        container.appendChild(img);
+    });
 }
 
 async function fetchFeedbacks(reportId) {

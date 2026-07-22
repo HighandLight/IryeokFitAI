@@ -5,6 +5,8 @@ import com.parkjunhyung.IryeokFitAi.domain.resume.dto.toResumeDto
 import com.parkjunhyung.IryeokFitAi.domain.resume.dto.CreateResumeRequest
 import com.parkjunhyung.IryeokFitAi.domain.report.service.ReportService
 import com.parkjunhyung.IryeokFitAi.domain.resume.service.ResumeService
+import com.parkjunhyung.IryeokFitAi.global.exception.CustomException
+import com.parkjunhyung.IryeokFitAi.global.exception.ErrorCode
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -29,14 +31,13 @@ class ResumeController(
     fun getResumeImageByReportId(
         @PathVariable reportId: Long,
         @AuthenticationPrincipal principal: User
-    ): ResponseEntity<Map<String, String?>> {
+    ): ResponseEntity<Map<String, List<String>>> {
         val report = reportService.getReportByIdWithCheck(reportId, principal.username)
 
         val resume = report.resume
-            ?: throw IllegalArgumentException("해당 리포트에 연결된 이력서가 없습니다.")
-        val resumeId = resume.id
-        val convertedUrl = resume.convertedImagePath
-        val response = mapOf("convertedImageUrl" to convertedUrl)
+            ?: throw CustomException(ErrorCode.REPORT_RESUME_NOT_LINKED)
+        val imageUrls = resume.images.sortedBy { it.pageNumber }.map { it.imageUrl }
+        val response = mapOf("imageUrls" to imageUrls)
         return ResponseEntity.ok(response)
     }
 
@@ -65,21 +66,13 @@ class ResumeController(
         return try {
             val resume = resumeService.uploadResume(userId, file)
             ResponseEntity.ok(resume.toResumeDto())
-        } catch (e: IllegalArgumentException) {
+        } catch (e: CustomException) {
             // ex, 존재하지 않는 사용자 ID
-            ResponseEntity.status(HttpStatus.NOT_FOUND).build()
+            ResponseEntity.status(e.errorCode.status).build()
         } catch (e: Exception) {
-            // 예기치 않은 서버 오류?
+            // 예기치 않은 서버 오류(S3 업로드 실패 등) - 원인 파악을 위해 반드시 로그 남기기
+            e.printStackTrace()
             ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
         }
     }
-
-
-    @ExceptionHandler(IllegalArgumentException::class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    fun handleIllegalArgumentException(e: IllegalArgumentException): ResponseEntity<String> {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.message)
-    }// 404 에러 반환토록
-
-
 }

@@ -3,15 +3,16 @@ package com.parkjunhyung.IryeokFitAi.domain.feedback.service
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.parkjunhyung.IryeokFitAi.domain.feedback.repository.FeedbackCategoryRepository
-import com.parkjunhyung.IryeokFitAi.domain.feedback.repository.FeedbackPriorityRepository
 import com.parkjunhyung.IryeokFitAi.domain.feedback.repository.FeedbackRepository
 import com.parkjunhyung.IryeokFitAi.domain.report.repository.ReportRepository
 import com.parkjunhyung.IryeokFitAi.domain.report.service.ReportService
 import com.parkjunhyung.IryeokFitAi.domain.feedback.entity.ENUM.FeedbackStatus
+import com.parkjunhyung.IryeokFitAi.domain.feedback.entity.ENUM.FeedbackPriority
 import com.parkjunhyung.IryeokFitAi.domain.report.entity.ENUM.ReportStatus
 import com.parkjunhyung.IryeokFitAi.domain.feedback.entity.Feedback
-import com.parkjunhyung.IryeokFitAi.domain.feedback.entity.FeedbackPriority
 import com.parkjunhyung.IryeokFitAi.domain.report.entity.Report
+import com.parkjunhyung.IryeokFitAi.global.exception.CustomException
+import com.parkjunhyung.IryeokFitAi.global.exception.ErrorCode
 import jakarta.transaction.Transactional
 import org.springframework.ai.chat.client.ChatClient
 import org.springframework.ai.openai.OpenAiChatModel
@@ -22,7 +23,6 @@ import java.time.LocalDateTime
 class FeedbackService(
     private val feedbackRepository: FeedbackRepository,
     private val reportRepository: ReportRepository,
-    private val feedbackPriorityRepository: FeedbackPriorityRepository,
     private val feedbackCategoryRepository: FeedbackCategoryRepository,
     private val reportService: ReportService,
     private val openAiChatModel: OpenAiChatModel
@@ -32,7 +32,7 @@ class FeedbackService(
     @Transactional
     fun generateFeedback(reportId: Long): List<Feedback> {
         val report = reportRepository.findById(reportId)
-            .orElseThrow { IllegalArgumentException("Report 없음: $reportId") }
+            .orElseThrow { CustomException(ErrorCode.REPORT_NOT_FOUND, "report_id=$reportId") }
         val resume = report.resume
 
         val resumeText = resume?.resumeText ?: "(이력서 텍스트 없음)"
@@ -111,14 +111,13 @@ class FeedbackService(
             val feedbackItems: List<FeedbackJson> = mapper.readValue(jsonString)
 
             return feedbackItems.map { item ->
-                val priorityEntity: FeedbackPriority? = feedbackPriorityRepository.findAll()
-                    .find { it.level.equals(item.priority, ignoreCase = true) }
-                    ?: feedbackPriorityRepository.findAll().find { it.level == "LOW" }
+                val priority = FeedbackPriority.entries.find { it.name.equals(item.priority, ignoreCase = true) }
+                    ?: FeedbackPriority.LOW
 
                 Feedback(
                     report = report,
                     category = item.category,
-                    priority = priorityEntity ?: throw IllegalStateException("No matching priority found"),
+                    priority = priority,
                     detailText = item.detailText,
                     suggestionText = item.suggestionText,
                     status = FeedbackStatus.PENDING,
@@ -139,7 +138,7 @@ class FeedbackService(
     @Transactional
     fun updateFeedbackStatus(feedbackId: Long, status: FeedbackStatus) {
         val feedback = feedbackRepository.findById(feedbackId)
-            .orElseThrow { throw IllegalArgumentException("피드백 없음!: $feedbackId") }
+            .orElseThrow { throw CustomException(ErrorCode.FEEDBACK_NOT_FOUND, "feedback_id=$feedbackId") }
         feedback.status = status
         feedbackRepository.save(feedback)
     }

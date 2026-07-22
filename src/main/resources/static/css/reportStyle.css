@@ -370,13 +370,21 @@ h2 {
     font-weight: 700;
 }
 
-#resumeImage {
-    max-width: 100%;
+#resumeImageList {
+    flex: 1;
+    min-height: 0; /* flex column 안에서 overflow-y가 동작하려면 필요 */
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.resumeImage {
+    width: 100%;
     height: auto;
-    max-height: calc(100% - 40px);
     object-fit: contain;
     border-radius: var(--radius-sm);
-    flex: 1;
+    flex-shrink: 0;
 }
 
 .feedback-section {
@@ -654,7 +662,7 @@ h2 {
         flex: 1;
     }
 
-    #resumeImage {
+    .resumeImage {
         height: auto;
         max-height: 300px;
         object-fit: contain;
@@ -726,7 +734,7 @@ h2 {
         padding: 14px;
     }
 
-    #resumeImage {
+    .resumeImage {
         max-height: 250px;
     }
 

@@ -1,6 +1,7 @@
 package com.parkjunhyung.IryeokFitAi.domain.feedback.dto
 
 import com.parkjunhyung.IryeokFitAi.domain.feedback.entity.ENUM.FeedbackStatus
+import com.parkjunhyung.IryeokFitAi.domain.feedback.entity.ENUM.FeedbackPriority
 import com.parkjunhyung.IryeokFitAi.domain.feedback.entity.Feedback
 import java.time.LocalDateTime
 
@@ -8,7 +9,7 @@ data class FeedbackDto(
     val id: Long,
     val reportId: Long,
     val category: String,
-    val priority: String,
+    val priority: FeedbackPriority,
     val detailText: String,
     val suggestionText: String,
     val status: FeedbackStatus,
@@ -20,7 +21,7 @@ fun Feedback.toFeedbackDto(): FeedbackDto {
         id = this.id,
         reportId = this.report.id,
         category = this.category,
-        priority = this.priority.level,
+        priority = this.priority,
         detailText = this.detailText,
         suggestionText = this.suggestionText,
         status = this.status,

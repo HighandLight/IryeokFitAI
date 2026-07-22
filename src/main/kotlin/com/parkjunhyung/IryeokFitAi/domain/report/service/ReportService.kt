@@ -7,9 +7,10 @@ import com.parkjunhyung.IryeokFitAi.domain.report.entity.ENUM.ReportStatus
 import com.parkjunhyung.IryeokFitAi.domain.report.entity.Report
 import com.parkjunhyung.IryeokFitAi.domain.report.dto.CreateReportRequest
 import com.parkjunhyung.IryeokFitAi.domain.report.dto.UpdateReportRequest
+import com.parkjunhyung.IryeokFitAi.global.exception.CustomException
+import com.parkjunhyung.IryeokFitAi.global.exception.ErrorCode
 import jakarta.transaction.Transactional
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.security.access.AccessDeniedException
 import org.springframework.stereotype.Service
 
 @Service
@@ -22,11 +23,11 @@ class ReportService(
     fun createReport(request: CreateReportRequest): Report {
         val resume = request.resumeId?.let { // resume가 null일 수 있도록 바꿈(polling - report 선 생성)
             resumeRepository.findById(it)
-                .orElseThrow { throw IllegalArgumentException("Resume 없음: ${request.resumeId}") }
+                .orElseThrow { throw CustomException(ErrorCode.RESUME_NOT_FOUND, "resume_id=${request.resumeId}") }
         }
 
         val user = userRepository.findById(request.userId)
-            .orElseThrow { throw IllegalArgumentException("User 없음: ${request.userId}") }
+            .orElseThrow { throw CustomException(ErrorCode.USER_NOT_FOUND, "user_id=${request.userId}") }
 
         val report = request.toReport(resume, user)
         return reportRepository.save(report)
@@ -34,15 +35,15 @@ class ReportService(
 
     fun getReportById(reportId: Long): Report {
         return reportRepository.findById(reportId)
-            .orElseThrow { throw IllegalArgumentException("report 없음: report_id : $reportId") }
+            .orElseThrow { throw CustomException(ErrorCode.REPORT_NOT_FOUND, "report_id=$reportId") }
     }
 
     fun getReportByUser(userId: Long, userEmail: String): List<Report> {
         val user = userRepository.findByEmail(userEmail)
-            ?: throw AccessDeniedException("사용자 정보를 찾을 수 없습니다.")
+            ?: throw CustomException(ErrorCode.ACCESS_DENIED)
 
         if (user.id != userId) {
-            throw AccessDeniedException("다른 사용자의 리포트 목록에는 접근할 수 없습니다.")
+            throw CustomException(ErrorCode.ACCESS_DENIED)
         }
 
         return reportRepository.findByUserId(userId)
@@ -73,7 +74,7 @@ class ReportService(
 
         req.resumeId?.let {
             val resume = resumeRepository.findById(it)
-                .orElseThrow { IllegalArgumentException("Resume not found") }
+                .orElseThrow { CustomException(ErrorCode.RESUME_NOT_FOUND) }
             report.resume = resume
         }
 
@@ -112,10 +113,10 @@ class ReportService(
 
     fun getReportByIdWithCheck(reportId: Long, userEmail: String): Report {
         val report = reportRepository.findById(reportId)
-            .orElseThrow { NoSuchElementException("해당 리포트를 찾을 수 없습니다. ID: $reportId") }
+            .orElseThrow { CustomException(ErrorCode.REPORT_NOT_FOUND, "report_id=$reportId") }
 
         if (report.user.email != userEmail) {
-            throw AccessDeniedException("이 리포트에 접근할 권한이 없습니다.")
+            throw CustomException(ErrorCode.ACCESS_DENIED)
         }
 
         return report

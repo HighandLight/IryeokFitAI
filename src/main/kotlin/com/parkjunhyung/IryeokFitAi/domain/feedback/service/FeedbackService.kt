@@ -12,6 +12,8 @@ import com.parkjunhyung.IryeokFitAi.domain.report.entity.ENUM.ReportStatus
 import com.parkjunhyung.IryeokFitAi.domain.feedback.entity.Feedback
 import com.parkjunhyung.IryeokFitAi.domain.feedback.entity.FeedbackPriority
 import com.parkjunhyung.IryeokFitAi.domain.report.entity.Report
+import com.parkjunhyung.IryeokFitAi.global.exception.CustomException
+import com.parkjunhyung.IryeokFitAi.global.exception.ErrorCode
 import jakarta.transaction.Transactional
 import org.springframework.ai.chat.client.ChatClient
 import org.springframework.ai.openai.OpenAiChatModel
@@ -32,7 +34,7 @@ class FeedbackService(
     @Transactional
     fun generateFeedback(reportId: Long): List<Feedback> {
         val report = reportRepository.findById(reportId)
-            .orElseThrow { IllegalArgumentException("Report 없음: $reportId") }
+            .orElseThrow { CustomException(ErrorCode.REPORT_NOT_FOUND, "report_id=$reportId") }
         val resume = report.resume
 
         val resumeText = resume?.resumeText ?: "(이력서 텍스트 없음)"
@@ -118,7 +120,7 @@ class FeedbackService(
                 Feedback(
                     report = report,
                     category = item.category,
-                    priority = priorityEntity ?: throw IllegalStateException("No matching priority found"),
+                    priority = priorityEntity ?: throw CustomException(ErrorCode.FEEDBACK_PRIORITY_NOT_FOUND),
                     detailText = item.detailText,
                     suggestionText = item.suggestionText,
                     status = FeedbackStatus.PENDING,
@@ -139,7 +141,7 @@ class FeedbackService(
     @Transactional
     fun updateFeedbackStatus(feedbackId: Long, status: FeedbackStatus) {
         val feedback = feedbackRepository.findById(feedbackId)
-            .orElseThrow { throw IllegalArgumentException("피드백 없음!: $feedbackId") }
+            .orElseThrow { throw CustomException(ErrorCode.FEEDBACK_NOT_FOUND, "feedback_id=$feedbackId") }
         feedback.status = status
         feedbackRepository.save(feedback)
     }

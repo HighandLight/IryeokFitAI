@@ -8,6 +8,8 @@ import com.parkjunhyung.IryeokFitAi.domain.resume.entity.ENUM.ResumeStatus
 import com.parkjunhyung.IryeokFitAi.domain.resume.dto.CreateResumeRequest
 import com.parkjunhyung.IryeokFitAi.domain.resume.dto.toResume
 import com.parkjunhyung.IryeokFitAi.domain.resume.util.PdfUtils.extractTextFromPdf
+import com.parkjunhyung.IryeokFitAi.global.exception.CustomException
+import com.parkjunhyung.IryeokFitAi.global.exception.ErrorCode
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 
@@ -19,20 +21,20 @@ class ResumeService (
 ){
     fun getResumeById(resumeId: Long): Resume {
         return resumeRepository.findById(resumeId)
-            .orElseThrow { throw IllegalArgumentException("resume 없음: resume_id : $resumeId")}
+            .orElseThrow { throw CustomException(ErrorCode.RESUME_NOT_FOUND, "resume_id=$resumeId") }
 
     }
 
     fun createResume(request: CreateResumeRequest): Resume {
         val user = userRepository.findById(request.userId)
-            .orElseThrow { throw IllegalArgumentException("회원이 존재하지 않습니다! : ${request.userId}") }
+            .orElseThrow { throw CustomException(ErrorCode.USER_NOT_FOUND, "user_id=${request.userId}") }
         val resume = request.toResume(user)
         return resumeRepository.save(resume)
     }
 
     fun deleteResume(resumeId: Long) {
         val resume = resumeRepository.findById(resumeId)
-            .orElseThrow { throw IllegalArgumentException("이력서를 찾을 수 없습니다: $resumeId") }
+            .orElseThrow { throw CustomException(ErrorCode.RESUME_NOT_FOUND, "resume_id=$resumeId") }
 
         resume.markAsDeleted()
         resumeRepository.save(resume)
@@ -40,7 +42,7 @@ class ResumeService (
 
 fun uploadResume(userId: Long, file: MultipartFile): Resume {
         val user = userRepository.findById(userId)
-            .orElseThrow { throw IllegalArgumentException("회원이 존재하지 않습니다: $userId") }
+            .orElseThrow { throw CustomException(ErrorCode.USER_NOT_FOUND, "user_id=$userId") }
 
         val resumeId = System.currentTimeMillis()
         val pdfUrl = s3Service.uploadPdf(userId, resumeId, file)

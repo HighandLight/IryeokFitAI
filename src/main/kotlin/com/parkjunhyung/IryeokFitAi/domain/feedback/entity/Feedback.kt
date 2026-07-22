@@ -1,6 +1,7 @@
 package com.parkjunhyung.IryeokFitAi.domain.feedback.entity
 
 import com.parkjunhyung.IryeokFitAi.domain.feedback.entity.ENUM.FeedbackStatus
+import com.parkjunhyung.IryeokFitAi.domain.feedback.entity.ENUM.FeedbackPriority
 import com.parkjunhyung.IryeokFitAi.domain.report.entity.Report
 import jakarta.persistence.*
 import java.time.LocalDateTime
@@ -19,8 +20,8 @@ class Feedback (
     @Column(name = "category", nullable = false, length = 100)
     var category: String,
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "priority_id", nullable = false)
+    @Enumerated(EnumType.STRING)
+    @Column(name = "priority", nullable = false)
     val priority: FeedbackPriority,
 
     @Column(name = "detail_text", nullable = false, columnDefinition = "TEXT")

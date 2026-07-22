@@ -10,7 +10,6 @@ enum class ErrorCode(val status: HttpStatus, val message: String) {
     REPORT_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 리포트입니다."),
     REPORT_RESUME_NOT_LINKED(HttpStatus.BAD_REQUEST, "해당 리포트에 연결된 이력서가 없습니다."),
     FEEDBACK_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 피드백입니다."),
-    FEEDBACK_PRIORITY_NOT_FOUND(HttpStatus.INTERNAL_SERVER_ERROR, "일치하는 우선순위를 찾을 수 없습니다."),
     ACCESS_DENIED(HttpStatus.FORBIDDEN, "접근 권한이 없습니다."),
 
     // 5XX

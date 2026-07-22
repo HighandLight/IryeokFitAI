@@ -3,14 +3,13 @@ package com.parkjunhyung.IryeokFitAi.domain.feedback.service
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.parkjunhyung.IryeokFitAi.domain.feedback.repository.FeedbackCategoryRepository
-import com.parkjunhyung.IryeokFitAi.domain.feedback.repository.FeedbackPriorityRepository
 import com.parkjunhyung.IryeokFitAi.domain.feedback.repository.FeedbackRepository
 import com.parkjunhyung.IryeokFitAi.domain.report.repository.ReportRepository
 import com.parkjunhyung.IryeokFitAi.domain.report.service.ReportService
 import com.parkjunhyung.IryeokFitAi.domain.feedback.entity.ENUM.FeedbackStatus
+import com.parkjunhyung.IryeokFitAi.domain.feedback.entity.ENUM.FeedbackPriority
 import com.parkjunhyung.IryeokFitAi.domain.report.entity.ENUM.ReportStatus
 import com.parkjunhyung.IryeokFitAi.domain.feedback.entity.Feedback
-import com.parkjunhyung.IryeokFitAi.domain.feedback.entity.FeedbackPriority
 import com.parkjunhyung.IryeokFitAi.domain.report.entity.Report
 import com.parkjunhyung.IryeokFitAi.global.exception.CustomException
 import com.parkjunhyung.IryeokFitAi.global.exception.ErrorCode
@@ -24,7 +23,6 @@ import java.time.LocalDateTime
 class FeedbackService(
     private val feedbackRepository: FeedbackRepository,
     private val reportRepository: ReportRepository,
-    private val feedbackPriorityRepository: FeedbackPriorityRepository,
     private val feedbackCategoryRepository: FeedbackCategoryRepository,
     private val reportService: ReportService,
     private val openAiChatModel: OpenAiChatModel
@@ -113,14 +111,13 @@ class FeedbackService(
             val feedbackItems: List<FeedbackJson> = mapper.readValue(jsonString)
 
             return feedbackItems.map { item ->
-                val priorityEntity: FeedbackPriority? = feedbackPriorityRepository.findAll()
-                    .find { it.level.equals(item.priority, ignoreCase = true) }
-                    ?: feedbackPriorityRepository.findAll().find { it.level == "LOW" }
+                val priority = FeedbackPriority.entries.find { it.name.equals(item.priority, ignoreCase = true) }
+                    ?: FeedbackPriority.LOW
 
                 Feedback(
                     report = report,
                     category = item.category,
-                    priority = priorityEntity ?: throw CustomException(ErrorCode.FEEDBACK_PRIORITY_NOT_FOUND),
+                    priority = priority,
                     detailText = item.detailText,
                     suggestionText = item.suggestionText,
                     status = FeedbackStatus.PENDING,

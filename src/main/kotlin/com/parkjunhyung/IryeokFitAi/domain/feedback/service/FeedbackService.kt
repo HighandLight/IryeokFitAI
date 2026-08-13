@@ -15,6 +15,7 @@ import com.parkjunhyung.IryeokFitAi.global.exception.CustomException
 import com.parkjunhyung.IryeokFitAi.global.exception.ErrorCode
 import jakarta.transaction.Transactional
 import org.springframework.ai.chat.client.ChatClient
+import org.springframework.ai.chat.model.ChatModel
 import org.springframework.ai.openai.OpenAiChatModel
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
@@ -25,9 +26,12 @@ class FeedbackService(
     private val reportRepository: ReportRepository,
     private val feedbackCategoryRepository: FeedbackCategoryRepository,
     private val reportService: ReportService,
-    private val openAiChatModel: OpenAiChatModel
+//    private val openAiChatModel: OpenAiChatModel
+    private val chatModel: ChatModel // 부하테스트 시 loadtest 프로파일의 가짜 ChatModel 빈으로 교체
 ) {
-    private val chatClient = ChatClient.create(openAiChatModel)
+//    private val chatClient = ChatClient.create(openAiChatModel)
+    private val chatClient = ChatClient.create(chatModel)
+
 
     @Transactional
     fun generateFeedback(reportId: Long): List<Feedback> {

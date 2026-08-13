@@ -2,6 +2,10 @@
     display: none;
 }
 
+.modal:not(.hidden) {
+    display: flex;
+}
+
 #blurWrapper.modal-active {
     filter: blur(4px);
     pointer-events: none;

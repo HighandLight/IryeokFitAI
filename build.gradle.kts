@@ -35,6 +35,7 @@ dependencies {
 	implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
 	implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+	implementation("net.logstash.logback:logstash-logback-encoder:7.4")
 	implementation("org.springframework.boot:spring-boot-starter-security")
 	implementation("org.springframework.boot:spring-boot-starter-aop")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")

@@ -12,4 +12,4 @@ fi
 
 echo "Starting app...(후후후...)"
 cd $APP_DIR
-nohup java -jar $APP_NAME > logs_$(date +%Y%m%d_%H%M%S).out 2>&1 &
+nohup java -Dspring.profiles.active=prod -jar $APP_NAME > logs_$(date +%Y%m%d_%H%M%S).out 2>&1 &

@@ -16,7 +16,7 @@ class LoadTestChatConfig {
 
     @Bean
     fun fakeChatModel(): ChatModel = ChatModel { _: Prompt ->
-        Thread.sleep(300) // TODO : 응답 시간 측정해야함..
+        Thread.sleep((5000..7500).random().toLong()) // AOP 기반 측정 평균(6s) 반영
         val stubJson = """
             [{"category":"부하테스트 측정용 피드백","priority":"LOW","detailText":"백엔드 개발자","suggestionText":"박준형"}]
         """.trimIndent()

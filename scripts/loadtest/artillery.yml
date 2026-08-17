@@ -1,6 +1,6 @@
 config:
   target: "https://iryeokfit.com"
-  timeout: 35 # wait-complete api 최대 폴링 시간(30초) 기준.
+  timeout: 35
   defaults:
     headers:
       Accept-Encoding: "gzip" # artillery 클라이언트가 zstd 응답을 디코딩 못해서 회피
@@ -13,7 +13,7 @@ config:
       arrivalCount: 5
 
 scenarios:
-  - name: "signup -> login -> upload resume -> create report -> wait complete"
+  - name: "signup -> login -> upload resume -> create report -> generate feedback"
     flow:
       - post:
           url: "/users"
@@ -68,11 +68,5 @@ scenarios:
       - post:
           url: "/feedbacks/generate/{{ reportId }}"
           name: "generate feedback (5-7.5s)"
-          headers:
-            Authorization: "Bearer {{ token }}"
-
-      - get:
-          url: "/reports/{{ reportId }}/wait-complete"
-          name: "wait complete"
           headers:
             Authorization: "Bearer {{ token }}"

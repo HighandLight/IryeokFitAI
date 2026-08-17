@@ -1,7 +1,6 @@
 package com.parkjunhyung.IryeokFitAi.global.config
 
 import com.parkjunhyung.IryeokFitAi.domain.user.service.CustomUserDetailsService
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.authentication.AuthenticationManager
@@ -11,18 +10,12 @@ import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
-import org.springframework.web.cors.CorsConfiguration
-import org.springframework.web.cors.CorsConfigurationSource
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 
 @Configuration
 class SecurityConfig(
     private val jwtFilter: JwtFilter,
     private val customUserDetailsService: CustomUserDetailsService
 ) {
-
-    @Value("\${app.frontend-origins}")
-    private lateinit var frontendOrigins: String
 
     @Bean
     fun passwordEncoder(): BCryptPasswordEncoder {
@@ -35,23 +28,9 @@ class SecurityConfig(
     }
 
     @Bean
-    fun corsConfigurationSource(): CorsConfigurationSource {
-        val configuration = CorsConfiguration().apply {
-            allowedOriginPatterns = frontendOrigins.split(",").map { it.trim() }
-            allowedMethods = listOf("GET", "POST", "PATCH", "DELETE", "OPTIONS")
-            allowedHeaders = listOf("Authorization", "Content-Type")
-            allowCredentials = false
-        }
-        return UrlBasedCorsConfigurationSource().apply {
-            registerCorsConfiguration("/**", configuration)
-        }
-    }
-
-    @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         http
             .csrf { it.disable() }
-            .cors { it.configurationSource(corsConfigurationSource()) }
             .authorizeHttpRequests { auth ->
                 auth
                     .requestMatchers("/", "/config/lambda-url","/ws/**", "/report", "/auth/login", "/index", "/signin", "/signup", "/users", "/css/**", "/js/**", "/img/**", "/error").permitAll()

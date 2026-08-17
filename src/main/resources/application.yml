@@ -13,6 +13,3 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     generate-ddl: true
-
-app:
-  frontend-origins: http://localhost:5173

@@ -1,0 +1,25 @@
+config:
+  target: "https://iryeokfit.com"
+  timeout: 35
+  defaults:
+    headers:
+      Accept-Encoding: "gzip" # artillery 클라이언트가 zstd 응답을 디코딩 못해서 회피
+  plugins:
+    metrics-by-endpoint:
+      suppressOutput: false
+  phases:
+    - name: "100 VUs"
+      duration: 1
+      arrivalCount: 100
+
+scenarios:
+  - name: "signup only" # 회원가입만 진행 -> Bcrypt 연산 배제 후 부하테스트 진행 위함
+    flow:
+      - post:
+          url: "/users"
+          name: "signup"
+          json:
+            name: "부하테스트"
+            email: "loadtest-{{ $uuid }}@test.com"
+            password: "qngkdmlqkseoakfdmstkdtkRjfRJf"
+            phoneNumber: "010{{ $randomNumber(10000000, 99999999) }}"

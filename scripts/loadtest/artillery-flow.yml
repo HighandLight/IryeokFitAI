@@ -1,0 +1,65 @@
+config:
+  target: "https://iryeokfit.com"
+  timeout: 35
+  defaults:
+    headers:
+      Accept-Encoding: "gzip"
+  plugins:
+    metrics-by-endpoint:
+      suppressOutput: false
+  payload:
+    path: "./resources/users.csv"
+    fields:
+      - "email"
+    order: "sequence" # vu마다 다른 계정
+  phases:
+    - name: "100 VUs"
+      duration: 1
+      arrivalCount: 100
+
+scenarios:
+  - name: "login -> upload resume -> create report -> generate feedback"
+    flow:
+      - post:
+          url: "/auth/login"
+          name: "login"
+          json:
+            email: "{{ email }}"
+            password: "qngkdmlqkseoakfdmstkdtkRjfRJf"
+          capture:
+            - json: "$.token"
+              as: "token"
+            - json: "$.userId"
+              as: "userId"
+
+      - post:
+          url: "/resumes/upload"
+          name: "upload resume"
+          headers:
+            Authorization: "Bearer {{ token }}"
+          formData:
+            userId: "{{ userId }}"
+            file:
+              fromFile: "./resources/sample-resume.pdf"
+          capture:
+            - json: "$.id"
+              as: "resumeId"
+
+      - post:
+          url: "/reports"
+          name: "create report"
+          headers:
+            Authorization: "Bearer {{ token }}"
+          json:
+            resumeId: "{{ resumeId }}"
+            userId: "{{ userId }}"
+            title: "부하테스트 리포트"
+          capture:
+            - json: "$.id"
+              as: "reportId"
+
+      - post:
+          url: "/feedbacks/generate/{{ reportId }}"
+          name: "generate feedback (5-7.5s)"
+          headers:
+            Authorization: "Bearer {{ token }}"

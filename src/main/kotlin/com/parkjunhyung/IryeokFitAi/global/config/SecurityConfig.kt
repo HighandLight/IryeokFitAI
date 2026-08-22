@@ -1,6 +1,7 @@
 package com.parkjunhyung.IryeokFitAi.global.config
 
 import com.parkjunhyung.IryeokFitAi.domain.user.service.CustomUserDetailsService
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.authentication.AuthenticationManager
@@ -18,8 +19,8 @@ class SecurityConfig(
 ) {
 
     @Bean
-    fun passwordEncoder(): BCryptPasswordEncoder {
-        return BCryptPasswordEncoder()
+    fun passwordEncoder(@Value("\${security.bcrypt.strength:10}") strength: Int): BCryptPasswordEncoder {
+        return BCryptPasswordEncoder(strength)
     }
 
     @Bean

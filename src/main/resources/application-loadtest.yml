@@ -4,3 +4,7 @@ spring:
   ai:
     openai:
       api-key: helloWorld!ImJunhyung!
+
+security:
+  bcrypt:
+    strength: 4

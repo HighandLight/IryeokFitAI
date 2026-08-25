@@ -13,11 +13,14 @@ import com.parkjunhyung.IryeokFitAi.domain.feedback.entity.Feedback
 import com.parkjunhyung.IryeokFitAi.domain.report.entity.Report
 import com.parkjunhyung.IryeokFitAi.global.exception.CustomException
 import com.parkjunhyung.IryeokFitAi.global.exception.ErrorCode
+import io.awspring.cloud.s3.S3Template
 import jakarta.transaction.Transactional
 import org.springframework.ai.chat.client.ChatClient
 import org.springframework.ai.chat.model.ChatModel
 import org.springframework.ai.openai.OpenAiChatModel
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
+import java.nio.charset.StandardCharsets
 import java.time.LocalDateTime
 
 @Service
@@ -27,7 +30,12 @@ class FeedbackService(
     private val feedbackCategoryRepository: FeedbackCategoryRepository,
     private val reportService: ReportService,
 //    private val openAiChatModel: OpenAiChatModel
-    private val chatModel: ChatModel // 부하테스트 시 loadtest 프로파일의 가짜 ChatModel 빈으로 교체
+    private val chatModel: ChatModel, // 부하테스트 시 loadtest 프로파일의 가짜 ChatModel 빈으로 교체
+    private val s3Template: S3Template,
+    @Value("\${spring.cloud.aws.s3.bucket}")
+    private val bucketName: String,
+    @Value("\${spring.cloud.aws.s3.prompt-key:prompts/feedback-prompt.txt}")
+    private val promptKey: String
 ) {
 //    private val chatClient = ChatClient.create(openAiChatModel)
     private val chatClient = ChatClient.create(chatModel)
@@ -77,27 +85,20 @@ class FeedbackService(
 
 
     private fun buildPrompt(jobPostingText: String, resumeText: String): String {
-        return """
-            You are a professional resume reviewer.
-            The user wants detailed feedback on their resume based on the following job posting:
+        return loadPromptTemplate()
+            .replace("{{jobPosting}}", jobPostingText)
+            .replace("{{resume}}", resumeText)
+    }
 
-            [Job Posting]
-            $jobPostingText
-
-            [Resume Content]
-            $resumeText
-
-            Please return a JSON array of feedback objects. 
-            Each object should have:
-            {
-              "category": "문서 형식 등",
-              "priority": "HIGH / MEDIUM / LOW",
-              "detailText": "세부 지적 사항",
-              "suggestionText": "개선 제안"
+    // 일단 매 요청마다 S3 호출 -> 캐싱 처리 필요할지?
+    private fun loadPromptTemplate(): String {
+        try {
+            s3Template.download(bucketName, promptKey).inputStream.use {
+                return it.readBytes().toString(StandardCharsets.UTF_8)
             }
-
-            Output only valid JSON, no extra commentary.
-        """.trimIndent()
+        } catch (e: Exception) {
+            throw CustomException(ErrorCode.PROMPT_LOAD_FAILED, "key=$promptKey")
+        }
     }
 
 

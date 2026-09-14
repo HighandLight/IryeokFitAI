@@ -22,7 +22,9 @@ class S3Service (
     @Value("\${spring.cloud.aws.s3.bucket}")
     private val bucketName: String,
     @Value("\${spring.cloud.aws.s3.directory}")
-    private val directory: String
+    private val directory: String,
+    @Value("\${spring.cloud.aws.s3.cdn-domain}")
+    private val cdnDomain: String
 ) {
     private fun encodeUserId(userId: Long): String {
         val digest = MessageDigest.getInstance("SHA-256")
@@ -38,7 +40,7 @@ class S3Service (
         println("업로드: ${file.originalFilename}, 크기: ${file.size} bytes")
 
         s3Template.upload(bucketName, key, inputStream)
-        return "https://$bucketName.s3.amazonaws.com/$key"
+        return "https://$cdnDomain/$key"
     }
 
     fun pdfToJpg(userId: Long, resumeId: Long, file: MultipartFile): List<String> {
@@ -56,7 +58,7 @@ class S3Service (
             val key = "$directory/$encodedUserId/resumes/$resumeId/images/page_${pageIndex + 1}.jpg"
             s3Template.upload(bucketName, key, imageInputStream)
 
-            uploadedImageUrls.add("https://$bucketName.s3.amazonaws.com/$key")
+            uploadedImageUrls.add("https://$cdnDomain/$key")
         }
 
         document.close()

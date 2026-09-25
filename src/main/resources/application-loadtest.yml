@@ -8,3 +8,7 @@ spring:
 security:
   bcrypt:
     strength: 4
+
+monitoring:
+  resource-metrics:
+    interval-ms: 1000 // 1초마다 로깅

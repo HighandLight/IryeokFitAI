@@ -4,6 +4,7 @@ import com.parkjunhyung.IryeokFitAi.domain.user.service.CustomUserDetailsService
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.http.HttpMethod
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
@@ -34,6 +35,8 @@ class SecurityConfig(
             .csrf { it.disable() }
             .authorizeHttpRequests { auth ->
                 auth
+                    .requestMatchers("/actuator/health/liveness", "/actuator/health/readiness").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/resume/new", "/reports", "/reports/{reportId:[0-9]+}", "/report.html").permitAll()
                     .requestMatchers("/", "/config/lambda-url","/ws/**", "/report", "/auth/login", "/index", "/signin", "/signup", "/users", "/css/**", "/js/**", "/img/**", "/error").permitAll()
                     .anyRequest().authenticated()
             }

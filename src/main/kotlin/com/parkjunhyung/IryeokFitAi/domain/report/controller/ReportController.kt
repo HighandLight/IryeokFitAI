@@ -12,7 +12,7 @@ import org.springframework.security.core.userdetails.User
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/reports")
+@RequestMapping("/api/reports")
 class ReportController(
     private val reportService: ReportService
 ) {
@@ -88,4 +88,3 @@ class ReportController(
         return ResponseEntity.noContent().build()
     }
 }
-

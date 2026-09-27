@@ -12,7 +12,7 @@
 <body>
 <script>
     document.addEventListener("DOMContentLoaded", async () => {
-        const response = await fetchWithAuth("/reports/user/" + localStorage.getItem("userId"));
+        const response = await fetchWithAuth("/api/reports/user/" + localStorage.getItem("userId"));
         if (response.ok) {
             const reports = await response.json();
             console.log(reports);

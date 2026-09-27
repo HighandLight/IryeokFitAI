@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" fill="none">
+  <title>이력핏: 경험에서 다음 기회로</title>
+  <rect width="64" height="64" rx="18" fill="#3655CE"/>
+  <path d="M21 14H35L44 23V46C44 48.2091 42.2091 50 40 50H21C18.7909 50 17 48.2091 17 46V18C17 15.7909 18.7909 14 21 14Z" fill="#FAFBFF"/>
+  <path d="M35 14V20C35 21.6569 36.3431 23 38 23H44L35 14Z" fill="#BAC9FF"/>
+  <path d="M24 25H29M24 31H32" stroke="#3655CE" stroke-width="3" stroke-linecap="round"/>
+  <path d="M28 42L46 24M36 24H46V34" stroke="#3655CE" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M28 42L46 24M36 24H46V34" stroke="#FAFBFF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

@@ -15,7 +15,7 @@ async function login() {
             localStorage.setItem('username', result.username);
             localStorage.setItem('userId', result.userId);
 
-            const reportResponse = await fetch(`/reports/user/${result.userId}`, {
+            const reportResponse = await fetch(`/api/reports/user/${result.userId}`, {
                 headers: { 'Authorization': `Bearer ${result.token}` }
             });
 
@@ -27,9 +27,9 @@ async function login() {
             console.log(reports);
 
             if (reports.length > 0) {
-                window.location.href = 'report';
+                window.location.href = '/reports';
             } else {
-                window.location.href = 'index';
+                window.location.href = '/resume/new';
             }
         } else {
             alert(result.error);

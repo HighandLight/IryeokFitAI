@@ -50,8 +50,8 @@ document.addEventListener("DOMContentLoaded", async () => {await fetchReports();
 });
 
 function getReportIdFromURL() {
-    const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get("reportId");
+    const match = window.location.pathname.match(/^\/reports\/(\d+)\/?$/);
+    return match ? match[1] : null;
 }
 
 function getUserIdFromToken() {
@@ -69,7 +69,7 @@ async function fetchReports() {
     const userId = getUserIdFromToken();
     if (!userId) return;
     try {
-        const response = await fetchWithAuth(`/reports/user/${userId}`);
+        const response = await fetchWithAuth(`/api/reports/user/${userId}`);
         const reports = await response.json();
         reportCache = reports; //  캐시에 저장
         renderReportList(reportCache);
@@ -193,7 +193,7 @@ function renderReportList(reports) {
             item.classList.remove("completed", "loading");
             item.classList.add("selected");
             onReportClick(report.id);
-            window.location.href = `/report?reportId=${report.id}`;
+            window.location.href = `/reports/${report.id}`;
         });
 
         container.appendChild(item);
@@ -226,7 +226,7 @@ async function longPollReportStatus(reportId, itemEl) {
     pollingSet.add(reportId);// 중복방지
 
     try {
-        const response = await fetchWithAuth(`/reports/${reportId}/wait-complete`);
+        const response = await fetchWithAuth(`/api/reports/${reportId}/wait-complete`);
         const report = await response.json();
         if (report.status === "COMPLETED") {
             itemEl.classList.remove("loading");
@@ -248,7 +248,7 @@ async function longPollReportStatus(reportId, itemEl) {
 //
 //     const poll = async () => {
 //         try {
-//             const res = await fetchWithAuth(`/reports/${reportId}`);
+//             const res = await fetchWithAuth(`/api/reports/${reportId}`);
 //             const report = await res.json();
 //             if (report.status === "COMPLETED") {
 //                 itemEl.classList.remove("loading");
@@ -311,7 +311,7 @@ async function proceedToFeedback() {
     // report 선 생성 (resume 없이 - 동적 할당)
     let report;
     try {
-        const res = await fetchWithAuth("/reports", {
+        const res = await fetchWithAuth("/api/reports", {
             method: "POST",
             body: JSON.stringify({
                 userId: userId,
@@ -359,7 +359,7 @@ async function proceedToFeedback() {
             skills: jobPostingData.skills
         };
 
-        await fetchWithAuth(`/reports/${report.id}`, {
+        await fetchWithAuth(`/api/reports/${report.id}`, {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(updateData)
@@ -403,11 +403,11 @@ async function proceedToFeedback() {
 }
 
 function onReportClick(reportId) {
-    fetch(`/reports/${reportId}/mark-as-read`, {
+    fetch(`/api/reports/${reportId}/mark-as-read`, {
         method: "GET",
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
     }).then(() => {
-        window.location.href = `/report.html?reportId=${reportId}`;
+        window.location.href = `/reports/${reportId}`;
     });
 }
 
@@ -425,9 +425,10 @@ async function fetchResumeImage(reportId) {
 function displayResumeImages(urls) {
     const container = document.getElementById("resumeImageList");
     container.innerHTML = "";
-    (urls || []).forEach((url) => {
+    (urls || []).forEach((url, index) => {
         const img = document.createElement("img");
         img.className = "resumeImage";
+        img.loading = index === 0 ? "eager" : "lazy";
         img.src = url;
         img.alt = "변환된 이력서";
         container.appendChild(img);

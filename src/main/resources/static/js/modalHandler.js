@@ -94,7 +94,7 @@ document.getElementById("proceedButton").addEventListener("click", async () => {
 
         const parsed = window.jobPostingData;
 
-        const reportRes = await fetch("/reports", {
+        const reportRes = await fetch("/api/reports", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -118,7 +118,7 @@ document.getElementById("proceedButton").addEventListener("click", async () => {
             headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
         });
 
-        window.location.href = `/report?reportId=${report.id}`;
+        window.location.href = `/reports/${report.id}`;
     } catch (err) {
         console.error("진행 실패:", err);
         alert("피드백 생성 중 오류가 발생했습니다.");

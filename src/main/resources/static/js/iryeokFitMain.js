@@ -165,7 +165,7 @@ async function proceedToFeedback() {
 
     let report;
     try {
-        const reportResponse = await fetchWithAuth("/reports", {
+        const reportResponse = await fetchWithAuth("/api/reports", {
             method: "POST",
             body: JSON.stringify(reportData),
         });
@@ -196,5 +196,5 @@ async function proceedToFeedback() {
         return;
     }
 
-    window.location.href = `report?reportId=${report.id}`;
+    window.location.href = `/reports/${report.id}`;
 }

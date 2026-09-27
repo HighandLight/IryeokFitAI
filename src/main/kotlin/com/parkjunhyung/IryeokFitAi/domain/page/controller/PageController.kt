@@ -2,7 +2,7 @@ package com.parkjunhyung.IryeokFitAi.domain.page.controller
 
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.GetMapping
-import jakarta.servlet.http.HttpServletResponse
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.ui.Model
 
@@ -12,8 +12,8 @@ class PageController(
 ) {
 
     @GetMapping("/")
-    fun redirectToIndex(response: HttpServletResponse) {
-        response.sendRedirect("/index")
+    fun showLandingPage(): String {
+        return "landing"
     }
 
     @GetMapping("/signin")
@@ -26,14 +26,22 @@ class PageController(
         return "signup"
     }
 
-    @GetMapping("/index")
-    fun showIndexPage(): String {
-        return "index"
+    @GetMapping("/resume/new")
+    fun showResumeUploadPage(): String {
+        return "resume/new"
     }
 
-    @GetMapping("/report")
-    fun showReportPage(model: Model): String {
+    @GetMapping("/reports", "/reports/{reportId:[0-9]+}")
+    fun showReportsPage(model: Model): String {
         model.addAttribute("resumeImageOrigin", "https://$cdnDomain")
-        return "report"
+        return "reports/index"
+    }
+
+    @GetMapping("/index")
+    fun redirectLegacyIndex(): String = "redirect:/resume/new"
+
+    @GetMapping("/report", "/report.html")
+    fun redirectLegacyReport(@RequestParam(required = false) reportId: Long?): String {
+        return if (reportId != null) "redirect:/reports/$reportId" else "redirect:/reports"
     }
 }

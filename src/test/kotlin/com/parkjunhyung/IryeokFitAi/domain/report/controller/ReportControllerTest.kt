@@ -65,7 +65,7 @@ class ReportControllerTest {
         every { reportService.createReport(any()) } returns report
 
         mockMvc.perform(
-            post("/reports").with(user("test@example.com"))
+            post("/api/reports").with(user("test@example.com"))
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(createRequest))
@@ -92,7 +92,7 @@ class ReportControllerTest {
         every { reportService.getReportByIdWithCheck(1L, "test@example.com") } returns report
 
         mockMvc.perform(
-            get("/reports/1").with(user("test@example.com"))
+            get("/api/reports/1").with(user("test@example.com"))
                 .with(csrf())
         )
 
@@ -128,7 +128,7 @@ class ReportControllerTest {
         every { reportService.getReportByUser(1L, "test@example.com") } returns reportList
 
         mockMvc.perform(
-            get("/reports/user/1").with(user("test@example.com"))
+            get("/api/reports/user/1").with(user("test@example.com"))
                 .with(csrf())
         )
             .andExpect(status().isOk)
@@ -144,7 +144,7 @@ class ReportControllerTest {
         every { reportService.updateReportStatus(1L, ReportStatus.SAVED, "test@example.com") } returns Unit
 
         mockMvc.perform(
-            patch("/reports/1/status").with(user("test@example.com"))
+            patch("/api/reports/1/status").with(user("test@example.com"))
                 .param("status", "SAVED")
                 .with(csrf())
         )
@@ -158,7 +158,7 @@ class ReportControllerTest {
         every { reportService.deleteReport(1L, "test@example.com") } returns Unit
 
         mockMvc.perform(
-            delete("/reports/1").with(user("test@example.com"))
+            delete("/api/reports/1").with(user("test@example.com"))
                 .with(csrf())
         )
             .andExpect(status().isNoContent)
@@ -171,7 +171,7 @@ class ReportControllerTest {
         every { reportService.getReportByIdWithCheck(1L, "test@example.com") } throws IllegalArgumentException("Report not found: 1")
 
         mockMvc.perform(
-            get("/reports/1").with(user("test@example.com"))
+            get("/api/reports/1").with(user("test@example.com"))
                 .with(csrf())
         )
             .andExpect(status().isBadRequest)

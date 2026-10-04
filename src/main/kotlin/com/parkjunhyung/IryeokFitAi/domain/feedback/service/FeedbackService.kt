@@ -37,11 +37,8 @@ class FeedbackService(
     @Value("\${spring.cloud.aws.s3.prompt-key:prompts/feedback-prompt.txt}")
     private val promptKey: String
 ) {
-//    private val chatClient = ChatClient.create(openAiChatModel)
     private val chatClient = ChatClient.create(chatModel)
 
-
-    @Transactional
     fun generateFeedback(reportId: Long): List<Feedback> {
         val report = reportRepository.findById(reportId)
             .orElseThrow { CustomException(ErrorCode.REPORT_NOT_FOUND, "report_id=$reportId") }
@@ -72,7 +69,12 @@ class FeedbackService(
 
         val newFeedbacks = parseFeedbackJson(cleanedResponse, report)
 
-        //상태 변경 + WebSocket 알림 처리
+
+        return saveFeedbacks(report, newFeedbacks)
+    }
+
+    @Transactional
+    fun saveFeedbacks(report: Report, newFeedbacks: List<Feedback>): List<Feedback> {
         reportService.markAsCompleted(report.id)
 
 
@@ -90,7 +92,6 @@ class FeedbackService(
             .replace("{{resume}}", resumeText)
     }
 
-    // 일단 매 요청마다 S3 호출 -> 캐싱 처리 필요할지?
     private fun loadPromptTemplate(): String {
         try {
             s3Template.download(bucketName, promptKey).inputStream.use {

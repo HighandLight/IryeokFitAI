@@ -1,0 +1,15 @@
+.git
+.gradle
+build
+*.log
+
+*-local.yml
+
+# CI builds the JAR before docker build; send only the artifact under build.
+!build
+build/*
+!build/libs
+build/libs/*
+!build/libs/*.jar
+.env
+.env.*

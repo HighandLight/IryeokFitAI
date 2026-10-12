@@ -15,7 +15,8 @@ import io.mockk.verify
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.springframework.security.access.AccessDeniedException
+import com.parkjunhyung.IryeokFitAi.global.exception.CustomException
+import com.parkjunhyung.IryeokFitAi.global.exception.ErrorCode
 import java.util.*
 
 class ReportServiceTest {
@@ -55,7 +56,7 @@ class ReportServiceTest {
     }
 
     @Test
-    fun `createReport() should throw IllegalArgumentException when resume not found`() {
+    fun `createReport() should throw CustomException when resume not found`() {
         val request = CreateReportRequest(
             resumeId = 1L,
             userId = 1L,
@@ -65,10 +66,10 @@ class ReportServiceTest {
 
         every { resumeRepository.findById(1L) } returns Optional.empty()
 
-        val exception = assertThrows(IllegalArgumentException::class.java) {
+        val exception = assertThrows(CustomException::class.java) {
             reportService.createReport(request)
         }
-        assertEquals("Resume 없음: 1", exception.message)
+        assertEquals(ErrorCode.RESUME_NOT_FOUND, exception.errorCode)
     }
 
     @Test
@@ -82,13 +83,13 @@ class ReportServiceTest {
     }
 
     @Test
-    fun `getReportById() should throw IllegalArgumentException when report not found`() {
+    fun `getReportById() should throw CustomException when report not found`() {
         every { reportRepository.findById(1L) } returns Optional.empty()
 
-        val exception = assertThrows(IllegalArgumentException::class.java) {
+        val exception = assertThrows(CustomException::class.java) {
             reportService.getReportById(1L)
         }
-        assertEquals("report 없음: report_id : 1", exception.message)
+        assertEquals(ErrorCode.REPORT_NOT_FOUND, exception.errorCode)
     }
 
     @Test
@@ -114,17 +115,17 @@ class ReportServiceTest {
     }
 
     @Test
-    fun `getReportByUser() should throw AccessDeniedException when user email not found`() {
+    fun `getReportByUser() should throw CustomException when user email not found`() {
         every { userRepository.findByEmail("test@example.com") } returns null
 
-        val exception = assertThrows(AccessDeniedException::class.java) {
+        val exception = assertThrows(CustomException::class.java) {
             reportService.getReportByUser(1L, "test@example.com")
         }
-        assertEquals("사용자 정보를 찾을 수 없습니다.", exception.message)
+        assertEquals(ErrorCode.ACCESS_DENIED, exception.errorCode)
     }
 
     @Test
-    fun `getReportByUser() should throw AccessDeniedException when userId mismatch`() {
+    fun `getReportByUser() should throw CustomException when userId mismatch`() {
         val user = mockk<User> {
             every { id } returns 2L
             every { email } returns "test@example.com"
@@ -132,86 +133,66 @@ class ReportServiceTest {
 
         every { userRepository.findByEmail("test@example.com") } returns user
 
-        val exception = assertThrows(AccessDeniedException::class.java) {
+        val exception = assertThrows(CustomException::class.java) {
             reportService.getReportByUser(1L, "test@example.com")
         }
-        assertEquals("다른 사용자의 리포트 목록에는 접근할 수 없습니다.", exception.message)
+        assertEquals(ErrorCode.ACCESS_DENIED, exception.errorCode)
     }
 
     @Test
     fun `updateReportStatus() should update status of a report`() {
-        val user = mockk<User> {
-            every { email } returns "test@example.com"
-        }
-        val report = mockk<Report>(relaxed = true) {
-            every { user } returns user
-        }
+        val owner = User(id = 1L, name = "Test", email = "test@example.com", password = "test", phoneNumber = "01012345678")
+        val report = Report(id = 1L, user = owner, title = "Test", status = ReportStatus.COMPLETED)
         every { reportRepository.findById(1L) } returns Optional.of(report)
         every { reportRepository.save(any()) } returns report
 
         reportService.updateReportStatus(1L, ReportStatus.SAVED, "test@example.com")
 
-        verify { report.status = ReportStatus.SAVED }
+        assertEquals(ReportStatus.SAVED, report.status)
         verify { reportRepository.save(report) }
     }
 
     @Test
-    fun `updateReportStatus() should throw AccessDeniedException when user email mismatch`() {
-        val user = mockk<User> {
-            every { email } returns "other@example.com"
-        }
-        val report = mockk<Report>(relaxed = true) {
-            every { user } returns user
-        }
+    fun `updateReportStatus() should throw CustomException when user email mismatch`() {
+        val owner = User(id = 1L, name = "Test", email = "other@example.com", password = "test", phoneNumber = "01012345678")
+        val report = Report(id = 1L, user = owner, title = "Test", status = ReportStatus.COMPLETED)
         every { reportRepository.findById(1L) } returns Optional.of(report)
 
-        val exception = assertThrows(AccessDeniedException::class.java) {
+        val exception = assertThrows(CustomException::class.java) {
             reportService.updateReportStatus(1L, ReportStatus.SAVED, "test@example.com")
         }
-        assertEquals("이 리포트에 접근할 권한이 없습니다.", exception.message)
+        assertEquals(ErrorCode.ACCESS_DENIED, exception.errorCode)
     }
 
     @Test
     fun `deleteReport() should mark the report as DELETED`() {
-        val user = mockk<User> {
-            every { email } returns "test@example.com"
-        }
-        val report = mockk<Report>(relaxed = true) {
-            every { user } returns user
-        }
+        val owner = User(id = 1L, name = "Test", email = "test@example.com", password = "test", phoneNumber = "01012345678")
+        val report = Report(id = 1L, user = owner, title = "Test", status = ReportStatus.COMPLETED)
         every { reportRepository.findById(1L) } returns Optional.of(report)
         every { reportRepository.save(any()) } returns report
 
         reportService.deleteReport(1L, "test@example.com")
 
-        verify { report.status = ReportStatus.DELETED }
+        assertEquals(ReportStatus.DELETED, report.status)
         verify { reportRepository.save(report) }
     }
 
     @Test
-    fun `deleteReport() should throw AccessDeniedException when user email mismatch`() {
-        val user = mockk<User> {
-            every { email } returns "other@example.com"
-        }
-        val report = mockk<Report>(relaxed = true) {
-            every { user } returns user
-        }
+    fun `deleteReport() should throw CustomException when user email mismatch`() {
+        val owner = User(id = 1L, name = "Test", email = "other@example.com", password = "test", phoneNumber = "01012345678")
+        val report = Report(id = 1L, user = owner, title = "Test", status = ReportStatus.COMPLETED)
         every { reportRepository.findById(1L) } returns Optional.of(report)
 
-        val exception = assertThrows(AccessDeniedException::class.java) {
+        val exception = assertThrows(CustomException::class.java) {
             reportService.deleteReport(1L, "test@example.com")
         }
-        assertEquals("이 리포트에 접근할 권한이 없습니다.", exception.message)
+        assertEquals(ErrorCode.ACCESS_DENIED, exception.errorCode)
     }
 
     @Test
     fun `getReportByIdWithCheck() should return report when user email matches`() {
-        val user = mockk<User> {
-            every { email } returns "test@example.com"
-        }
-        val report = mockk<Report>(relaxed = true) {
-            every { user } returns user
-        }
+        val owner = User(id = 1L, name = "Test", email = "test@example.com", password = "test", phoneNumber = "01012345678")
+        val report = Report(id = 1L, user = owner, title = "Test", status = ReportStatus.COMPLETED)
         every { reportRepository.findById(1L) } returns Optional.of(report)
 
         val result = reportService.getReportByIdWithCheck(1L, "test@example.com")
@@ -221,28 +202,24 @@ class ReportServiceTest {
     }
 
     @Test
-    fun `getReportByIdWithCheck() should throw AccessDeniedException when user email mismatch`() {
-        val user = mockk<User> {
-            every { email } returns "other@example.com"
-        }
-        val report = mockk<Report>(relaxed = true) {
-            every { user } returns user
-        }
+    fun `getReportByIdWithCheck() should throw CustomException when user email mismatch`() {
+        val owner = User(id = 1L, name = "Test", email = "other@example.com", password = "test", phoneNumber = "01012345678")
+        val report = Report(id = 1L, user = owner, title = "Test", status = ReportStatus.COMPLETED)
         every { reportRepository.findById(1L) } returns Optional.of(report)
 
-        val exception = assertThrows(AccessDeniedException::class.java) {
+        val exception = assertThrows(CustomException::class.java) {
             reportService.getReportByIdWithCheck(1L, "test@example.com")
         }
-        assertEquals("이 리포트에 접근할 권한이 없습니다.", exception.message)
+        assertEquals(ErrorCode.ACCESS_DENIED, exception.errorCode)
     }
 
     @Test
-    fun `getReportByIdWithCheck() should throw NoSuchElementException when report not found`() {
+    fun `getReportByIdWithCheck() should throw CustomException when report not found`() {
         every { reportRepository.findById(1L) } returns Optional.empty()
 
-        val exception = assertThrows(NoSuchElementException::class.java) {
+        val exception = assertThrows(CustomException::class.java) {
             reportService.getReportByIdWithCheck(1L, "test@example.com")
         }
-        assertEquals("해당 리포트를 찾을 수 없습니다. ID: 1", exception.message)
+        assertEquals(ErrorCode.REPORT_NOT_FOUND, exception.errorCode)
     }
 }

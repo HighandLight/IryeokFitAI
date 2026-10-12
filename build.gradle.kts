@@ -65,5 +65,5 @@ tasks.named<Jar>("jar") {
 }
 
 tasks.named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
-    exclude("**/application-local.yml")
+    exclude("**/application-local.yml", "**/application-loadtest.yml")
 }

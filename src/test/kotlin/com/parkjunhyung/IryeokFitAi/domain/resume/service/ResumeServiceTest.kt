@@ -1,5 +1,7 @@
 package com.parkjunhyung.IryeokFitAi.domain.resume.service
 
+import com.parkjunhyung.IryeokFitAi.global.exception.CustomException
+import com.parkjunhyung.IryeokFitAi.global.exception.ErrorCode
 import com.parkjunhyung.IryeokFitAi.domain.resume.repository.ResumeRepository
 import com.parkjunhyung.IryeokFitAi.domain.user.repository.UserRepository
 import com.parkjunhyung.IryeokFitAi.domain.resume.entity.Resume
@@ -30,7 +32,6 @@ class ResumeServiceTest {
         val request = CreateResumeRequest(
             userId = 1L,
             originalFilePath = "/uploads/박준형이력서.pdf",
-            convertedImagePath = null,
             status = ResumeStatus.UPLOADED
         )
 
@@ -38,7 +39,6 @@ class ResumeServiceTest {
             id = 1L,
             user = user,
             originalFilePath = request.originalFilePath,
-            convertedImagePath = request.convertedImagePath,
             status = request.status
         )
 
@@ -49,8 +49,8 @@ class ResumeServiceTest {
 
         assertEquals(expectedResume.user.id, newResume.user.id)
         assertEquals(expectedResume.originalFilePath, newResume.originalFilePath)
-        assertEquals(expectedResume.convertedImagePath, newResume.convertedImagePath)
         assertEquals(expectedResume.status, newResume.status)
+        assertEquals(emptyList(), newResume.images)
     }
 
     @Test
@@ -58,17 +58,16 @@ class ResumeServiceTest {
         val request = CreateResumeRequest(
             userId = 999L,
             originalFilePath = "/uploads/존재하지 않는 이력서.pdf",
-            convertedImagePath = null,
             status = ResumeStatus.UPLOADED
         )
 
         every { userRepository.findById(999L) } returns java.util.Optional.empty()
 
-        val exception = assertFailsWith<IllegalArgumentException> {
+        val exception = assertFailsWith<CustomException> {
             resumeService.createResume(request)
         }
 
-        assertEquals("회원이 존재하지 않습니다! : 999", exception.message)
+        assertEquals(ErrorCode.USER_NOT_FOUND, exception.errorCode)
     }
 
     @Test
@@ -79,7 +78,6 @@ class ResumeServiceTest {
             id = 1L,
             user = user,
             originalFilePath = "/uploads/박준형이력서.pdf",
-            convertedImagePath = null,
             status = ResumeStatus.UPLOADED
         )
 
@@ -96,10 +94,10 @@ class ResumeServiceTest {
     fun `deleteResume() should throw an exception if resume does not exist`() {
         every { resumeRepository.findById(999L) } returns Optional.empty()
 
-        val exception = assertFailsWith<IllegalArgumentException> {
+        val exception = assertFailsWith<CustomException> {
             resumeService.deleteResume(999L)
         }
 
-        assertEquals("이력서를 찾을 수 없습니다: 999", exception.message)
+        assertEquals(ErrorCode.RESUME_NOT_FOUND, exception.errorCode)
     }
 }

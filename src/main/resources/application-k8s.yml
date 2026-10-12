@@ -1,0 +1,22 @@
+# Activate together with prod: SPRING_PROFILES_ACTIVE=prod,k8s
+server:
+  port: 8080
+  shutdown: graceful
+  forward-headers-strategy: framework
+spring:
+  lifecycle:
+    timeout-per-shutdown-phase: 40s
+  jpa:
+    generate-ddl: false
+    hibernate:
+      ddl-auto: validate
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+      probes:
+        enabled: true

@@ -1,5 +1,10 @@
 package com.parkjunhyung.IryeokFitAi.domain.user.controller
 
+import com.parkjunhyung.IryeokFitAi.global.config.SecurityConfig
+import com.parkjunhyung.IryeokFitAi.global.util.JwtUtil
+import com.parkjunhyung.IryeokFitAi.domain.user.service.CustomUserDetailsService
+import org.springframework.context.annotation.Import
+
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.ninjasquad.springmockk.MockkBean
 import com.parkjunhyung.IryeokFitAi.domain.user.controller.UserController
@@ -21,7 +26,11 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 @WebMvcTest(value = [UserController::class])
 @ExtendWith(MockKExtension::class)
+@Import(SecurityConfig::class)
 class UserControllerTest {
+    @MockkBean lateinit var jwtUtil: JwtUtil
+    @MockkBean lateinit var customUserDetailsService: CustomUserDetailsService
+
     @Autowired
     lateinit var mockMvc: MockMvc
 

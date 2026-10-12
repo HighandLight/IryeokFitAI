@@ -1,0 +1,132 @@
+name: Test and deploy to k3s
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: iryeokfit-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: gradle
+      - name: Test and build the production JAR
+        run: bash ./gradlew clean test bootJar --no-daemon
+        env:
+          SPRING_PROFILES_ACTIVE: test
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: build/reports/tests/test
+          retention-days: 7
+      - name: Preserve the tested JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-jar
+          path: build/libs/*.jar
+          if-no-files-found: error
+          retention-days: 1
+
+  publish-and-deploy:
+    needs: test-and-build
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      IMAGE_NAME: docker.io/${{ vars.DOCKERHUB_IMAGE }}
+      INFRA_REPOSITORY: HighandLight/infra
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate deployment configuration
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+          INFRA_REPO_TOKEN: ${{ secrets.INFRA_REPO_TOKEN }}
+        run: |
+          test -n "$DOCKERHUB_USERNAME" || { echo 'Missing DOCKERHUB_USERNAME secret'; exit 1; }
+          test -n "$DOCKERHUB_TOKEN" || { echo 'Missing DOCKERHUB_TOKEN secret'; exit 1; }
+          test -n "$INFRA_REPO_TOKEN" || { echo 'Missing INFRA_REPO_TOKEN secret'; exit 1; }
+          [[ "$IMAGE_NAME" =~ ^docker\.io/[a-z0-9][a-z0-9_-]*/[a-z0-9][a-z0-9._-]*$ ]] || {
+            echo 'Set DOCKERHUB_IMAGE variable to lowercase account/repository'; exit 1;
+          }
+      - uses: actions/download-artifact@v4
+        with:
+          name: app-jar
+          path: build/libs
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push the tested artifact
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          platforms: linux/amd64
+          tags: ${{ env.IMAGE_NAME }}:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: Check out infra
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.INFRA_REPOSITORY }}
+          ref: main
+          token: ${{ secrets.INFRA_REPO_TOKEN }}
+          path: infra-checkout
+      - name: Update Git desired state only for the current main commit
+        working-directory: infra-checkout
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          current_main=$(gh api "repos/$GITHUB_REPOSITORY/commits/main" --jq .sha)
+          if [[ "$current_main" != "$GITHUB_SHA" ]]; then
+            echo 'A newer main commit exists; skip deploying this older build.'
+            exit 0
+          fi
+          python3 - <<'PY'
+          import os
+          import re
+          from pathlib import Path
+
+          path = Path('apps/iryeokfit/kustomization.yaml')
+          content = path.read_text()
+          for key, value in [('newName', os.environ['IMAGE_NAME']), ('newTag', os.environ['GITHUB_SHA'])]:
+              content, count = re.subn(rf'^    {key}: .+$', f'    {key}: {value}', content, flags=re.M)
+              if count != 1:
+                  raise SystemExit(f'Expected one {key} entry in {path}; refusing to edit')
+          path.write_text(content)
+          PY
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add apps/iryeokfit/kustomization.yaml
+          if git diff --cached --quiet; then
+            echo 'This image is already the desired version.'
+            exit 0
+          fi
+          git commit -m "deploy(iryeokfit): $GITHUB_SHA"
+          git pull --rebase origin main
+          # A concurrent edit conflict fails the workflow instead of force-pushing.
+          current_main=$(gh api "repos/$GITHUB_REPOSITORY/commits/main" --jq .sha)
+          if [[ "$current_main" != "$GITHUB_SHA" ]]; then
+            echo 'Main advanced during the update; skip pushing this deployment.'
+            exit 0
+          fi
+          git push origin HEAD:main
